@@ -1,45 +1,6 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react"
 import { sampleChats, sampleHistories } from "../data/initialChats"
 import { Chat, ChatStatus, HistoryMessage } from "../types/chat"
-import {
-  InboxIcon,
-  ClockIcon,
-  PauseIcon,
-  SearchIcon,
-  SendIcon,
-  PaperclipIcon,
-  MoreVerticalIcon,
-  AlarmClockIcon,
-  AlertCircleIcon,
-  CloseIcon,
-  MessengerBadge,
-} from "../components/icons/Icons"
-
-const navTabs: {
-  label: string
-  status: ChatStatus
-  icon: React.ComponentType<{ className?: string }>
-  helperText: string
-}[] = [
-  {
-    label: "Cần trả lời",
-    status: "needsReply",
-    icon: InboxIcon,
-    helperText: "Shop có trách nhiệm xử lý tiếp · Ca hết hạn được ưu tiên lên đầu với viền cảnh báo cam",
-  },
-  {
-    label: "Chờ khách",
-    status: "waiting",
-    icon: ClockIcon,
-    helperText: "Shop đã gửi tư vấn xong · Đang đợi khách phản hồi hoặc quyết định",
-  },
-  {
-    label: "Tạm hoãn",
-    status: "snoozed",
-    icon: PauseIcon,
-    helperText: "Shop đang nợ cam kết kiểm tra kho/size · Tự động nhắc việc khi hết giờ",
-  },
-]
 
 export default function PrototypeV2View() {
   const [chats, setChats] = useState<Chat[]>(sampleChats)
@@ -62,7 +23,7 @@ export default function PrototypeV2View() {
   const [snoozeMenuOpen, setSnoozeMenuOpen] = useState(false)
   const [moreMenuOpen, setMoreMenuOpen] = useState(false)
 
-  // CẢI TIẾN 2 (Phần 6 & 7): Mặc định chọn sẵn mốc "3 phút"
+  // CẢI TIẾN 2: Mặc định chọn sẵn 3 phút
   const [snoozeDelay, setSnoozeDelay] = useState("3 phút")
   const [snoozeNote, setSnoozeNote] = useState("")
 
@@ -71,7 +32,7 @@ export default function PrototypeV2View() {
   const [simulateOffline, setSimulateOffline] = useState(false)
 
   const historyEndRef = useRef<HTMLDivElement>(null)
-  const noteInputRef = useRef<HTMLTextAreaElement>(null)
+  const noteInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setSendError(false)
@@ -79,7 +40,7 @@ export default function PrototypeV2View() {
     setSnoozeMenuOpen(false)
   }, [activeChat])
 
-  // CẢI TIẾN 2: Tự động focus vào ô ghi chú khi modal mở ra
+  // CẢI TIẾN 2: Auto-focus ô ghi chú khi mở modal
   useEffect(() => {
     if (snoozeOpen) {
       setSnoozeDelay("3 phút")
@@ -89,7 +50,7 @@ export default function PrototypeV2View() {
     }
   }, [snoozeOpen])
 
-  // Timer đếm ngược 1s: Tự động đưa ca hết hạn về Cần trả lời
+  // Timer đếm ngược 1s
   useEffect(() => {
     const timer = window.setInterval(() => {
       const time = Date.now()
@@ -105,7 +66,7 @@ export default function PrototypeV2View() {
                 snoozeUntil: undefined,
                 snoozeDelay: undefined,
                 returnedNote:
-                  chat.snoozeNote || "Đã hết 3 phút kiểm tra kho, quay lại tư vấn gấp",
+                  chat.snoozeNote || "Đã hết 3 phút kiểm tra kho, tiếp tục tư vấn gấp",
                 updatedAt: time,
                 unread: true,
               }
@@ -150,8 +111,12 @@ export default function PrototypeV2View() {
     if (next) setActiveChat(chats.indexOf(next))
   }
 
-  const activeStatus =
-    navTabs.find((item) => item.label === activeNav)?.status ?? "needsReply"
+  const activeStatus: ChatStatus =
+    activeNav === "Cần trả lời"
+      ? "needsReply"
+      : activeNav === "Chờ khách"
+        ? "waiting"
+        : "snoozed"
 
   const conversationCounts = chats.reduce<Record<ChatStatus, number>>(
     (counts: Record<ChatStatus, number>, chat: Chat) => ({
@@ -303,234 +268,232 @@ export default function PrototypeV2View() {
   }
 
   return (
-    <div className="flex h-full w-full min-h-[600px] overflow-hidden bg-white text-slate-800">
-      {/* CỘT DANH SÁCH HỘI THOẠI (BÊN TRÁI - 360px) */}
-      <aside className="flex w-[360px] min-w-[340px] max-w-[380px] shrink-0 flex-col border-r border-slate-200 bg-white">
+    <div className="flex h-full w-full overflow-hidden bg-[#F0F2F5] text-slate-800 antialiased font-sans">
+      {/* ===================== CỘT BÊN TRÁI: SIDEBAR HỘI THOẠI ===================== */}
+      <aside className="flex w-[350px] shrink-0 flex-col border-r border-slate-200/90 bg-white shadow-[1px_0_4px_rgba(0,0,0,0.02)]">
         {/* Header Shop & Ca trực */}
-        <div className="border-b border-slate-100 px-5 py-4 bg-slate-50/50">
+        <div className="border-b border-slate-100 px-4 py-3 bg-white">
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700 border border-blue-200/60">
-              <span className="size-1.5 rounded-full bg-blue-600 animate-pulse" />
-              ANNA Closet · Messenger
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+            <div className="flex items-center gap-2">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs shadow-xs">
+                A
+              </span>
+              <div>
+                <h1 className="text-sm font-bold text-slate-900 leading-tight">
+                  ANNA Closet
+                </h1>
+                <p className="text-[11px] text-slate-500">
+                  NV: <span className="font-semibold text-slate-700">Nguyễn Vy</span> · Ca tối 20h-22h
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200/60">
               v2 (Đã cải tiến)
             </span>
           </div>
-          <h1 className="mt-2 text-lg font-heading font-bold text-slate-900 tracking-tight">
-            Hội thoại bán hàng
-          </h1>
-          <p className="mt-0.5 text-xs text-slate-500">
-            NV trực: <strong className="text-slate-700">Nguyễn Vy</strong> (Bản Prototype v2 sau kiểm thử)
-          </p>
         </div>
 
-        {/* Thanh 3 Tab Trạng thái */}
-        <div className="flex border-b border-slate-200 px-3 pt-2 bg-white">
-          {navTabs.map((tab) => {
-            const isActive = activeNav === tab.label
-            const count = conversationCounts[tab.status]
-            const TabIcon = tab.icon
-            return (
-              <button
-                key={tab.status}
-                type="button"
-                onClick={() => {
-                  setActiveNav(tab.label)
-                  setMoreMenuOpen(false)
-                  setSnoozeMenuOpen(false)
-                  const first = chats
-                    .filter((c: Chat) => c.status === tab.status)
-                    .sort(
-                      (a: Chat, b: Chat) =>
-                        Number(Boolean(b.returnedNote)) - Number(Boolean(a.returnedNote)) ||
-                        (b.updatedAt ?? 0) - (a.updatedAt ?? 0),
-                    )[0]
-                  if (first) setActiveChat(chats.indexOf(first))
-                }}
-                className={`relative flex flex-1 items-center justify-center gap-1.5 pb-3 pt-2 text-xs font-heading transition-all ${
-                  isActive
-                    ? "font-bold text-blue-600"
-                    : "font-semibold text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                <TabIcon className={`size-3.5 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
-                <span>{tab.label}</span>
-                <span
-                  className={`ml-0.5 rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+        {/* Thanh 3 Tabs Pill-style chuẩn UI hiện đại (KHÔNG BỊ RỚT DÒNG) */}
+        <div className="p-2.5 pb-2 bg-slate-50/70 border-b border-slate-100">
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-slate-200/60 p-1">
+            {[
+              { label: "Cần trả lời", count: conversationCounts.needsReply, color: "text-rose-600 bg-rose-50" },
+              { label: "Chờ khách", count: conversationCounts.waiting, color: "text-slate-600 bg-slate-100" },
+              { label: "Tạm hoãn", count: conversationCounts.snoozed, color: "text-amber-700 bg-amber-50" },
+            ].map((tab) => {
+              const isActive = activeNav === tab.label
+              return (
+                <button
+                  key={tab.label}
+                  type="button"
+                  onClick={() => {
+                    setActiveNav(tab.label)
+                    setMoreMenuOpen(false)
+                    setSnoozeMenuOpen(false)
+                  }}
+                  className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-all ${
                     isActive
-                      ? tab.status === "needsReply" && count > 0
-                        ? "bg-red-500 text-white"
-                        : "bg-blue-600 text-white"
-                      : tab.status === "needsReply" && count > 0
-                        ? "bg-red-100 text-red-700 font-bold"
-                        : "bg-slate-100 text-slate-600"
+                      ? "bg-white text-blue-600 shadow-xs font-bold"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
                   }`}
                 >
-                  {count}
-                </span>
-                {isActive && (
-                  <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-t-full bg-blue-600" />
-                )}
-              </button>
-            )
-          })}
+                  <span className="truncate">{tab.label}</span>
+                  <span
+                    className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                      isActive ? "bg-blue-600 text-white" : tab.color
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
-        {/* Ô Tìm kiếm */}
-        <div className="border-b border-slate-100 p-3">
-          <div className="relative">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
-              <SearchIcon className="size-4" />
-            </span>
+        {/* Ô Tìm kiếm khách hàng */}
+        <div className="px-3 py-2 border-b border-slate-100">
+          <div className="relative flex items-center">
+            <svg
+              className="absolute left-3 size-3.5 text-slate-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
             <input
-              aria-label="Tìm kiếm khách hàng"
               value={search}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
-              placeholder="Tìm theo tên hoặc nội dung..."
-              className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-9 pr-3 text-xs outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm kiếm khách hàng..."
+              className="h-8.5 w-full rounded-lg bg-slate-100/80 pl-8.5 pr-3 text-xs text-slate-800 outline-none transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 border border-transparent"
             />
           </div>
         </div>
 
-        {/* Dòng hướng dẫn ngữ cảnh tab */}
-        <div className="border-b border-slate-100 bg-slate-50/70 px-4 py-2 text-[11px] text-slate-500">
-          <span className="font-semibold text-slate-700">{activeNav}: </span>
-          {navTabs.find((t) => t.label === activeNav)?.helperText}
-        </div>
-
-        {/* Danh sách thẻ chat: ÁP DỤNG CẢI TIẾN 1 (VIỀN CAM + ICON ĐỒNG HỒ) */}
-        <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
+        {/* Danh sách thẻ hội thoại: ÁP DỤNG CẢI TIẾN 1 (VIỀN CAM NỔI BẬT + ĐỒNG HỒ BÁO THỨC) */}
+        <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
           {visibleChats.map((chat: Chat) => {
             const index = chats.indexOf(chat)
             const isActive = activeChat === index
-            const isDueReminder = Boolean(chat.returnedNote)
+            const isDue = Boolean(chat.returnedNote)
 
             return (
-              <button
-                type="button"
+              <div
                 key={chat.id}
                 onClick={() => {
                   setActiveChat(index)
                   setChats((prev: Chat[]) =>
-                    prev.map((c: Chat, i: number) => (i === index ? { ...c, unread: false } : c)),
+                    prev.map((c: Chat, i: number) =>
+                      i === index ? { ...c, unread: false } : c,
+                    ),
                   )
                 }}
-                className={`group relative w-full rounded-xl p-3 text-left transition-all ${
-                  isDueReminder
-                    ? "border-2 border-orange-500 bg-orange-50/40 shadow-sm ring-1 ring-orange-200"
+                className={`group relative flex cursor-pointer items-start gap-3 rounded-xl p-2.5 transition-all ${
+                  isDue
+                    ? "border-2 border-orange-500 bg-orange-50/70 shadow-xs ring-1 ring-orange-300"
                     : isActive
-                      ? "bg-blue-50/70 border border-blue-200 shadow-xs"
-                      : "border border-transparent hover:bg-slate-50"
+                      ? "bg-blue-50/70 border-l-[3px] border-l-blue-600 shadow-xs"
+                      : "hover:bg-slate-50 border-l-[3px] border-l-transparent"
                 }`}
               >
-                {isActive && !isDueReminder && (
-                  <span className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-blue-600" />
-                )}
+                {/* Avatar */}
+                <div className="relative shrink-0">
+                  <img
+                    src={chat.avatar}
+                    alt={chat.name}
+                    className={`size-10.5 rounded-full object-cover ring-1 ${
+                      isDue ? "ring-orange-400" : "ring-slate-200"
+                    }`}
+                  />
+                  <span
+                    className="absolute -bottom-0.5 -right-0.5 grid size-3.5 place-items-center rounded-full bg-[#0084FF] text-[8px] font-black text-white ring-1.5 ring-white"
+                    title="Messenger"
+                  >
+                    ~
+                  </span>
+                </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="relative shrink-0">
-                    <img
-                      src={chat.avatar}
-                      alt={chat.name}
-                      className={`size-11 rounded-full object-cover ring-1 ${
-                        isDueReminder ? "ring-orange-400" : "ring-slate-200"
+                {/* Thông tin cuộc chat */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <span
+                      className={`truncate text-xs font-semibold ${
+                        isDue
+                          ? "font-bold text-orange-950"
+                          : chat.unread
+                            ? "font-bold text-slate-900"
+                            : "text-slate-800"
                       }`}
-                    />
-                    <span className="absolute -bottom-0.5 -right-0.5">
-                      <MessengerBadge />
+                    >
+                      {chat.name}
+                    </span>
+                    <span className="shrink-0 text-[10px] text-slate-400">
+                      {chat.time}
                     </span>
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-1">
-                      <span
-                        className={`truncate font-heading text-sm ${
-                          isDueReminder
-                            ? "font-bold text-orange-950"
-                            : chat.unread
-                              ? "font-bold text-slate-900"
-                              : "font-semibold text-slate-800"
-                        }`}
-                      >
-                        {chat.name}
+                  <p
+                    className={`mt-0.5 truncate text-[11.5px] leading-relaxed ${
+                      isDue
+                        ? "font-semibold text-orange-900"
+                        : chat.unread
+                          ? "font-medium text-slate-900"
+                          : "text-slate-500"
+                    }`}
+                  >
+                    {chat.snippet}
+                  </p>
+
+                  <div className="mt-1.5 flex items-center justify-between gap-1">
+                    <span className="truncate rounded bg-slate-100 px-1.5 py-0.2 text-[9.5px] font-medium text-slate-600">
+                      {chat.productTag || "Áo/Váy nữ"}
+                    </span>
+
+                    {/* CẢI TIẾN 1: Badge cam "Đến hạn nhắc việc" & icon đồng hồ ngoài danh sách */}
+                    {isDue ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-0.2 text-[9.5px] font-bold text-white shadow-xs animate-bounce">
+                        <svg
+                          className="size-2.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
+                          <circle cx="12" cy="13" r="8" />
+                          <path d="M12 9v4l2 2" />
+                          <path d="M5 3L2 6" />
+                          <path d="M22 6l-3-3" />
+                        </svg>
+                        Đến hạn nhắc việc!
                       </span>
-                      <span className="shrink-0 text-[11px] text-slate-400">{chat.time}</span>
-                    </div>
-
-                    <p
-                      className={`mt-1 line-clamp-1 text-xs leading-relaxed ${
-                        isDueReminder
-                          ? "font-semibold text-orange-900"
-                          : chat.unread
-                            ? "font-medium text-slate-900"
-                            : "text-slate-500"
-                      }`}
-                    >
-                      {chat.snippet}
-                    </p>
-
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <span className="truncate text-[10px] font-medium text-slate-500 bg-slate-100 rounded px-1.5 py-0.5">
-                        {chat.productTag || "Quan tâm sản phẩm"}
+                    ) : chat.unread ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.2 text-[9.5px] font-bold text-white shadow-xs">
+                        <span className="size-1 rounded-full bg-white animate-pulse" />
+                        Đang đợi {chat.wait}
                       </span>
-
-                      {isDueReminder ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-xs animate-bounce">
-                          <AlarmClockIcon className="size-3" />
-                          Đến hạn nhắc việc!
-                        </span>
-                      ) : chat.unread ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
-                          <span className="size-1.5 rounded-full bg-white animate-pulse" />
-                          Đang đợi {chat.wait}
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
-                          {chat.status === "waiting"
-                            ? "Chờ khách phản hồi"
-                            : chat.status === "snoozed"
-                              ? `Còn ${remaining(chat)}`
-                              : `Đang đợi ${chat.wait}`}
-                        </span>
-                      )}
-                    </div>
+                    ) : (
+                      <span className="text-[10px] text-slate-400">
+                        {chat.status === "snoozed"
+                          ? `Còn ${remaining(chat)}`
+                          : chat.status === "waiting"
+                            ? "Chờ khách rep"
+                            : `Đang đợi ${chat.wait}`}
+                      </span>
+                    )}
                   </div>
                 </div>
-              </button>
+              </div>
             )
           })}
         </div>
       </aside>
 
-      {/* CỘT KHUNG CHAT CHI TIẾT */}
-      <main className="relative flex min-h-0 flex-1 flex-col bg-white">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-6 bg-white">
-          <div className="flex items-center gap-3">
+      {/* ===================== CỘT BÊN PHẢI: KHUNG CHAT CHI TIẾT ===================== */}
+      <main className="flex min-h-0 flex-1 flex-col bg-white">
+        {/* Header khung chat (gọn gàng ~54px) */}
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200/90 px-5 bg-white">
+          <div className="flex items-center gap-2.5">
             <div className="relative">
               <img
                 src={customer?.avatar}
                 alt={customer?.name}
-                className="size-10 rounded-full object-cover ring-1 ring-slate-200"
+                className="size-9 rounded-full object-cover ring-1 ring-slate-200"
               />
-              <span className="absolute -bottom-0.5 -right-0.5">
-                <MessengerBadge />
-              </span>
+              <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-1.5 ring-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-heading text-base font-bold text-slate-900">
+                <h2 className="text-sm font-bold text-slate-900 leading-tight">
                   {customer?.name}
                 </h2>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                  className={`rounded-full px-2 py-0.2 text-[10px] font-bold ${
                     customer?.returnedNote
                       ? "bg-orange-100 text-orange-800 border border-orange-300"
-                      : customer?.status === "needsReply"
-                        ? "bg-red-50 text-red-600 border border-red-200"
-                        : customer?.status === "waiting"
-                          ? "bg-sky-50 text-sky-700 border border-sky-200"
-                          : "bg-blue-50 text-blue-700 border border-blue-200"
+                      : "bg-slate-100 text-slate-600"
                   }`}
                 >
                   {customer?.returnedNote
@@ -543,32 +506,43 @@ export default function PrototypeV2View() {
                 </span>
               </div>
               <p className="text-[11px] text-slate-500">
-                Đang quan tâm: <strong className="text-slate-700">{customer?.productTag}</strong> · Giá {customer?.orderPrice}
+                Sản phẩm: <span className="font-semibold text-slate-700">{customer?.productTag}</span> ({customer?.orderPrice})
               </p>
             </div>
           </div>
 
+          {/* Nút thao tác trên Header */}
           <div className="flex items-center gap-2">
+            {/* Nút Tạm hoãn */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => {
                   if (customer?.status === "snoozed") {
-                    setSnoozeMenuOpen((v: boolean) => !v)
+                    setSnoozeMenuOpen((v) => !v)
                     setMoreMenuOpen(false)
                   } else {
-                    setSnoozeDelay("3 phút")
+                    setSnoozeDelay("3 phút") // Cải tiến v2: Chọn sẵn 3 phút
                     setSnoozeNote("")
                     setSnoozeOpen(true)
                   }
                 }}
-                className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-heading font-semibold transition-all ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
                   customer?.status === "snoozed"
-                    ? "bg-blue-600 text-white shadow-xs hover:bg-blue-700"
-                    : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400"
+                    ? "bg-amber-600 text-white shadow-xs hover:bg-amber-700"
+                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
-                <PauseIcon className="size-3.5" />
+                <svg
+                  className="size-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M10 15V9M14 15V9" />
+                </svg>
                 <span>
                   {customer?.status === "snoozed"
                     ? `Đang hoãn · ${remaining(customer)}`
@@ -577,7 +551,7 @@ export default function PrototypeV2View() {
               </button>
 
               {snoozeMenuOpen && customer?.status === "snoozed" && (
-                <div className="absolute right-0 top-full z-30 mt-1.5 w-48 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+                <div className="absolute right-0 top-full z-30 mt-1 w-44 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
                   <button
                     type="button"
                     onClick={() => {
@@ -598,7 +572,7 @@ export default function PrototypeV2View() {
                       setActiveNav("Cần trả lời")
                       setSnoozeMenuOpen(false)
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+                    className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600"
                   >
                     Mở lại trước hạn
                   </button>
@@ -606,21 +580,25 @@ export default function PrototypeV2View() {
               )}
             </div>
 
+            {/* Menu 3 chấm */}
             <div className="relative">
               <button
                 type="button"
-                aria-label="Thêm tùy chọn"
                 onClick={() => {
-                  setMoreMenuOpen((v: boolean) => !v)
+                  setMoreMenuOpen((v) => !v)
                   setSnoozeMenuOpen(false)
                 }}
-                className="grid size-9 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                className="grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"
               >
-                <MoreVerticalIcon className="size-4" />
+                <svg className="size-4" fill="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5" r="1.5" />
+                  <circle cx="12" cy="12" r="1.5" />
+                  <circle cx="12" cy="19" r="1.5" />
+                </svg>
               </button>
 
               {moreMenuOpen && (
-                <div className="absolute right-0 top-full z-30 mt-1.5 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-xl">
+                <div className="absolute right-0 top-full z-30 mt-1 w-52 rounded-xl border border-slate-200 bg-white p-1 shadow-xl text-xs">
                   <button
                     type="button"
                     onClick={() => {
@@ -631,14 +609,14 @@ export default function PrototypeV2View() {
                       )
                       setMoreMenuOpen(false)
                     }}
-                    className="w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-100"
+                    className="w-full rounded-lg px-3 py-2 text-left text-slate-700 hover:bg-slate-50"
                   >
                     Đánh dấu chưa đọc
                   </button>
                   <button
                     type="button"
                     onClick={() => handleCustomerReply(activeChat)}
-                    className="w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-100"
+                    className="w-full rounded-lg px-3 py-2 text-left text-slate-700 hover:bg-slate-50"
                   >
                     Giả lập: Khách nhắn thêm
                   </button>
@@ -646,12 +624,12 @@ export default function PrototypeV2View() {
                   <button
                     type="button"
                     onClick={() => {
-                      setSimulateOffline((v: boolean) => !v)
+                      setSimulateOffline((v) => !v)
                       setMoreMenuOpen(false)
                     }}
-                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-medium text-amber-700 hover:bg-amber-50"
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-amber-700 hover:bg-amber-50"
                   >
-                    <span>Giả lập lỗi mạng khi gửi</span>
+                    <span>Lỗi mất mạng khi gửi</span>
                     <span
                       className={`size-2 rounded-full ${
                         simulateOffline ? "bg-amber-500" : "bg-slate-300"
@@ -664,83 +642,82 @@ export default function PrototypeV2View() {
           </div>
         </header>
 
-        <div
-          aria-label="Lịch sử hội thoại"
-          className="flex-1 overflow-y-auto bg-slate-50/60 p-6"
-        >
-          <div className="mx-auto flex max-w-3xl min-h-full flex-col justify-end space-y-4">
+        {/* Khung Tin nhắn cuộn (Bubble chat chuẩn Messenger) */}
+        <div className="flex-1 overflow-y-auto bg-[#F7F8FA] px-6 py-4">
+          <div className="mx-auto flex max-w-2xl min-h-full flex-col justify-end space-y-3">
+            {/* Banner Hệ thống nhắc việc khi hết hạn (Đồng bộ cam với thẻ danh sách) */}
             {customer?.returnedNote && (
-              <div className="sticky top-0 z-10 flex items-start gap-2.5 rounded-xl border border-orange-300 bg-orange-50/95 p-3.5 text-xs text-orange-950 shadow-sm backdrop-blur-xs ring-1 ring-orange-200">
-                <AlarmClockIcon className="size-4 shrink-0 text-orange-600 mt-0.5" />
-                <div>
-                  <span className="font-heading font-bold text-orange-700">Đến hạn nhắc việc: </span>
-                  Đã hết thời gian hẹn giờ tra cứu! Ghi chú việc cần làm ngay:{" "}
-                  <strong className="underline decoration-orange-400">
-                    "{customer.returnedNote}"
-                  </strong>
+              <div className="sticky top-2 z-10 flex items-center justify-between rounded-xl border border-orange-300 bg-orange-50/95 px-4 py-2.5 text-xs text-orange-950 shadow-sm backdrop-blur-xs ring-1 ring-orange-200">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-orange-600 animate-ping" />
+                  <span>
+                    <strong>Đến hạn nhắc việc:</strong> Đã hết 3 phút tra cứu! Ghi chú:{" "}
+                    <em>"{customer.returnedNote}"</em>
+                  </span>
                 </div>
               </div>
             )}
 
+            {/* Banner Đang tạm hoãn */}
             {customer?.status === "snoozed" && (
-              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5 text-xs shadow-xs">
-                <div className="flex items-center gap-2 text-slate-700">
-                  <PauseIcon className="size-4 text-blue-600" />
-                  <span>
-                    Cuộc trò chuyện đang được tạm gác · Ghi chú:{" "}
-                    <strong>{customer.snoozeNote || "Đang tra cứu thông tin..."}</strong>
-                  </span>
-                </div>
-                <span className="font-heading font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+              <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-900">
+                <span>
+                  Đang tạm hoãn · Ghi chú: <strong>{customer.snoozeNote || "Check kho"}</strong>
+                </span>
+                <span className="font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-full">
                   Còn lại: {remaining(customer)}
                 </span>
               </div>
             )}
 
-            <div className="my-2 flex items-center gap-3">
+            {/* Mốc phân cách Hôm nay */}
+            <div className="flex items-center gap-3 py-1">
               <div className="h-px flex-1 bg-slate-200" />
-              <span className="text-[11px] font-medium text-slate-400">Hôm nay</span>
+              <span className="text-[10.5px] font-medium text-slate-400">Hôm nay</span>
               <div className="h-px flex-1 bg-slate-200" />
             </div>
 
+            {/* Danh sách tin nhắn */}
             {histories[activeChat]?.map((entry: HistoryMessage, idx: number) => {
               const isShop = entry.from === "shop"
               return (
                 <div
                   key={idx}
-                  className={`flex items-end gap-2.5 ${isShop ? "justify-end" : "justify-start"}`}
+                  className={`flex items-end gap-2 ${
+                    isShop ? "justify-end" : "justify-start"
+                  }`}
                 >
                   {!isShop && (
                     <img
                       src={customer?.avatar}
                       alt={customer?.name}
-                      className="size-7 rounded-full object-cover ring-1 ring-slate-200 mb-1"
+                      className="size-6.5 rounded-full object-cover ring-1 ring-slate-200 mb-0.5"
                     />
                   )}
-                  <div className={`max-w-[70%] ${isShop ? "items-end" : "items-start"}`}>
+                  <div
+                    className={`group relative flex flex-col ${
+                      isShop ? "items-end" : "items-start"
+                    }`}
+                  >
                     <div
-                      className={`rounded-2xl px-4 py-2.5 text-xs leading-relaxed shadow-xs ${
+                      className={`max-w-[460px] px-3.5 py-2 text-xs leading-relaxed shadow-2xs ${
                         isShop
-                          ? "rounded-br-xs bg-blue-600 text-white font-normal"
-                          : "rounded-bl-xs bg-white text-slate-800 border border-slate-200"
+                          ? "rounded-2xl rounded-br-xs bg-[#0084FF] text-white"
+                          : "rounded-2xl rounded-bl-xs bg-white text-slate-800 border border-slate-200/80"
                       }`}
                     >
                       {entry.image && (
                         <img
                           src={entry.image}
-                          alt="Ảnh sản phẩm đính kèm"
-                          className="mb-2 max-h-52 rounded-lg object-cover ring-1 ring-black/5"
+                          alt="Ảnh đính kèm"
+                          className="mb-1.5 max-h-48 rounded-lg object-cover"
                         />
                       )}
                       <p className="whitespace-pre-wrap break-words">{entry.text}</p>
                     </div>
-                    <div
-                      className={`mt-1 px-1 text-[10px] text-slate-400 ${
-                        isShop ? "text-right" : "text-left"
-                      }`}
-                    >
+                    <span className="mt-0.5 px-1 text-[9.5px] text-slate-400">
                       {entry.time} · {isShop ? "Đã gửi" : customer?.name}
-                    </div>
+                    </span>
                   </div>
                 </div>
               )
@@ -749,50 +726,44 @@ export default function PrototypeV2View() {
           </div>
         </div>
 
-        <footer className="border-t border-slate-200 bg-white p-4">
-          <div className="mx-auto max-w-3xl">
+        {/* Khung Nhập tin nhắn (Footer thanh lịch chuẩn CSKH) */}
+        <footer className="border-t border-slate-200/90 bg-white p-3">
+          <div className="mx-auto max-w-2xl">
             {attachment && (
-              <div className="mb-3 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs">
-                <div className="flex items-center gap-2.5">
+              <div className="mb-2 flex items-center justify-between rounded-lg bg-slate-100 p-2 text-xs">
+                <div className="flex items-center gap-2">
                   <img
                     src={attachment.url}
                     alt="Preview"
-                    className="size-10 rounded-lg object-cover border"
+                    className="size-8 rounded object-cover"
                   />
-                  <span className="font-medium text-slate-700">{attachment.name}</span>
+                  <span className="font-medium text-slate-700 text-[11px] truncate max-w-[200px]">
+                    {attachment.name}
+                  </span>
                 </div>
                 <button
                   type="button"
                   onClick={() =>
-                    setAttachments((prev: Record<number, { name: string; url: string } | undefined>) => ({
-                      ...prev,
-                      [activeChat]: undefined,
-                    }))
+                    setAttachments((prev) => ({ ...prev, [activeChat]: undefined }))
                   }
-                  className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                  className="text-slate-400 hover:text-slate-700 text-xs font-bold px-1"
                 >
-                  <CloseIcon className="size-4" />
+                  ✕
                 </button>
               </div>
             )}
 
             {sendError && (
-              <div
-                role="alert"
-                className="mb-3 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700"
-              >
-                <div className="flex items-center gap-2">
-                  <AlertCircleIcon className="size-4 shrink-0 text-red-600" />
-                  <span>Chưa gửi được tin nhắn do sự cố kết nối. Nội dung đã được lưu lại.</span>
-                </div>
+              <div className="mb-2 flex items-center justify-between rounded-lg bg-rose-50 px-3 py-1.5 text-xs text-rose-700 border border-rose-200">
+                <span>⚠️ Chưa gửi được do sự cố kết nối. Nội dung được lưu lại.</span>
                 <button
                   type="button"
                   onClick={() => {
                     setSimulateOffline(false)
                     setSendError(false)
-                    document.querySelector<HTMLFormElement>("#chat-form-v2")?.requestSubmit()
+                    document.querySelector<HTMLFormElement>("#form-chat-v2")?.requestSubmit()
                   }}
-                  className="rounded-md bg-red-600 px-3 py-1 font-heading font-semibold text-white hover:bg-red-700 shadow-xs"
+                  className="rounded bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-rose-700"
                 >
                   Thử lại
                 </button>
@@ -800,114 +771,103 @@ export default function PrototypeV2View() {
             )}
 
             <form
-              id="chat-form-v2"
+              id="form-chat-v2"
               onSubmit={handleSendMessage}
-              className="flex items-end gap-2.5"
+              className="flex items-center gap-2"
             >
-              <div className="flex-1 rounded-2xl border border-slate-300 bg-white p-2.5 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-                <textarea
-                  value={message}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
-                  placeholder="Soạn nội dung tư vấn giá, size, màu sắc..."
-                  rows={2}
-                  className="w-full resize-none bg-transparent text-xs outline-none placeholder:text-slate-400"
+              <label
+                className="flex size-9 cursor-pointer items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-colors shrink-0"
+                title="Gửi ảnh mẫu"
+              >
+                <svg
+                  className="size-4.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                      setAttachments((prev) => ({
+                        ...prev,
+                        [activeChat]: {
+                          name: file.name,
+                          url: String(reader.result),
+                        },
+                      }))
+                    }
+                    reader.readAsDataURL(file)
+                    e.target.value = ""
+                  }}
                 />
-                <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-                  <label
-                    className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-100"
-                    title="Gửi ảnh mẫu sản phẩm"
-                  >
-                    <PaperclipIcon className="size-3.5 text-slate-500" />
-                    <span>Gửi ảnh mẫu sản phẩm</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const file = e.target.files?.[0]
-                        if (!file) return
-                        const reader = new FileReader()
-                        reader.onload = () => {
-                          setAttachments((prev: Record<number, { name: string; url: string } | undefined>) => ({
-                            ...prev,
-                            [activeChat]: {
-                              name: file.name,
-                              url: String(reader.result),
-                            },
-                          }))
-                        }
-                        reader.readAsDataURL(file)
-                        e.target.value = ""
-                      }}
-                    />
-                  </label>
-                  <span className="text-[10px] text-slate-400">Nhấn Enter để xuống dòng</span>
-                </div>
+              </label>
+
+              <div className="flex flex-1 items-center rounded-full border border-slate-200 bg-slate-50/70 px-4 py-1.5 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                <input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Nhập tin nhắn tư vấn size, giá, màu sắc... (Enter để gửi)"
+                  className="w-full bg-transparent text-xs text-slate-800 outline-none placeholder:text-slate-400"
+                />
               </div>
 
               <button
                 type="submit"
-                className="flex h-11 items-center gap-1.5 rounded-xl bg-blue-600 px-5 text-xs font-heading font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95"
+                disabled={!message.trim() && !attachment}
+                className="flex size-9 items-center justify-center rounded-full bg-[#0084FF] text-white shadow-xs transition-all hover:bg-blue-600 active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed shrink-0"
               >
-                <span>Gửi</span>
-                <SendIcon className="size-3.5" />
+                <svg
+                  className="size-4 ml-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
               </button>
             </form>
           </div>
         </footer>
-
-        {visibleChats.length === 0 && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-white p-6">
-            <div className="max-w-xs text-center">
-              <div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-blue-50 text-blue-600">
-                <InboxIcon className="size-6" />
-              </div>
-              <h3 className="font-heading text-sm font-bold text-slate-800">
-                Không có hội thoại trong {activeNav}
-              </h3>
-              <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-                Tất cả các ca tư vấn thuộc nhóm này đã được xử lý hoặc chuyển trạng thái.
-              </p>
-            </div>
-          </div>
-        )}
       </main>
 
-      {/* MODAL TẠM HOÃN (CẢI TIẾN 2: CHỌN SẴN 3 PHÚT, AUTO-FOCUS, ENTER ĐỂ XÁC NHẬN) */}
+      {/* ===================== MODAL TẠM HOÃN (CẢI TIẾN 2: CHỌN SẴN 3 PHÚT, AUTO-FOCUS, ENTER ĐỂ LƯU) ===================== */}
       {snoozeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs">
-          <div
-            role="dialog"
-            aria-modal="true"
-            onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-              if (e.key === "Escape") setSnoozeOpen(false)
-            }}
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-100"
-          >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <h3 className="font-heading text-base font-bold text-slate-900">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl border border-slate-100">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-sm font-bold text-slate-900">
                   Tạm hoãn cuộc hội thoại
                 </h3>
-                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                  Cải tiến v2
+                <span className="rounded-full bg-emerald-100 px-1.5 py-0.2 text-[9px] font-bold text-emerald-800">
+                  v2 cải tiến
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setSnoozeOpen(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="text-slate-400 hover:text-slate-700 text-sm font-bold"
               >
-                <CloseIcon className="size-4" />
+                ✕
               </button>
             </div>
 
-            <div className="py-4 space-y-4">
+            <div className="py-3.5 space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2">
-                  Thời gian nhắc việc (Đã chọn sẵn 3 phút phổ biến):
+                <label className="block text-[11.5px] font-semibold text-slate-700 mb-1.5">
+                  Nhắc lại sau (Đã chọn sẵn 3 phút):
                 </label>
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-2">
                   {["3 phút", "5 phút"].map((delay) => {
                     const isSelected = snoozeDelay === delay
                     return (
@@ -915,25 +875,13 @@ export default function PrototypeV2View() {
                         key={delay}
                         type="button"
                         onClick={() => setSnoozeDelay(delay)}
-                        className={`rounded-xl border p-3 text-left transition-all ${
+                        className={`rounded-xl border p-2.5 text-center transition-all ${
                           isSelected
-                            ? "border-blue-600 bg-blue-50/80 text-blue-900 ring-2 ring-blue-100 shadow-xs"
-                            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                            ? "border-blue-600 bg-blue-50 text-blue-900 font-bold ring-1 ring-blue-500 shadow-2xs"
+                            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-medium text-xs"
                         }`}
                       >
-                        <div className="flex items-center justify-between font-heading font-bold text-sm">
-                          <span>{delay}</span>
-                          {isSelected && (
-                            <span className="text-[10px] bg-blue-600 text-white rounded-full px-1.5 py-0.2">
-                              Mặc định
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">
-                          {delay === "3 phút"
-                            ? "Tra cứu bảng size / giá nhanh"
-                            : "Kiểm tra tồn kho thực tế"}
-                        </div>
+                        <div className="text-xs">{delay}</div>
                       </button>
                     )
                   })}
@@ -941,50 +889,41 @@ export default function PrototypeV2View() {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label
-                    htmlFor="snooze-note-v2"
-                    className="block text-xs font-semibold text-slate-700"
-                  >
-                    Ghi chú nhanh (Tự động trỏ chuột - Nhấn Enter để lưu):
-                  </label>
-                </div>
-                <textarea
-                  id="snooze-note-v2"
+                <label className="block text-[11.5px] font-semibold text-slate-700 mb-1">
+                  Ghi chú nhanh (Tự động trỏ chuột - Nhấn Enter để xác nhận):
+                </label>
+                <input
                   ref={noteInputRef}
                   value={snoozeNote}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSnoozeNote(e.target.value)}
-                  onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
+                  onChange={(e) => setSnoozeNote(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
                       e.preventDefault()
                       confirmSnooze()
                     }
                   }}
-                  placeholder="Gõ nhanh ghi chú: Check size M màu trắng... (Enter để xong)"
-                  rows={2}
-                  className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  placeholder="Gõ nhanh: Check size M màu trắng... (Enter để xong)"
+                  className="w-full rounded-lg border border-slate-200 p-2 text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-              <span className="text-[11px] text-slate-400">
-                Phím tắt: <strong className="text-slate-600">Enter</strong> xác nhận, <strong className="text-slate-600">Esc</strong> để hủy
-              </span>
+            <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+              <span className="text-[10px] text-slate-400">Enter: Lưu · Esc: Hủy</span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setSnoozeOpen(false)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-heading font-semibold text-slate-600 hover:bg-slate-50"
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
                 >
-                  Hủy (Esc)
+                  Hủy
                 </button>
                 <button
                   type="button"
                   onClick={confirmSnooze}
-                  className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-heading font-bold text-white shadow-xs transition-all hover:bg-blue-700"
+                  className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700"
                 >
-                  Xác nhận tạm hoãn (Enter)
+                  Xác nhận (Enter)
                 </button>
               </div>
             </div>
