@@ -238,7 +238,7 @@ export default function App() {
 
   const [now, setNow] = useState(Date.now())
   const [sendError, setSendError] = useState(false)
-  const [notice, setNotice] = useState("")
+
   useEffect(() => {
     setSendError(false)
     setMoreMenuOpen(false)
@@ -299,7 +299,7 @@ export default function App() {
     setActiveNav("Cần trả lời")
     const next = visibleChats.find((chat) => chats.indexOf(chat) !== activeChat)
     if (next) setActiveChat(chats.indexOf(next))
-    setNotice("Đã tạm hoãn. Hệ thống sẽ nhắc bạn quay lại khi đến hạn.")
+
   }
 
   const activeStatus =
@@ -385,7 +385,7 @@ export default function App() {
     } else {
       setActiveNav("Chờ khách")
     }
-    setNotice("Đã gửi · Hội thoại chuyển sang Chờ khách.")
+
     setAttachments((current) => ({ ...current, [activeChat]: undefined }))
     setMessage("")
   }
@@ -423,8 +423,8 @@ export default function App() {
   }
 
   return (
-    <main className="h-dvh min-h-[600px] overflow-hidden bg-[#F3F4F6] p-3 text-[#1F2937] lg:p-5">
-      <section className="app-shell mx-auto grid h-full w-full max-w-[1360px] grid-cols-[350px_minmax(0,1fr)] overflow-hidden rounded-lg border border-[#D1D5DB] bg-white">
+    <main className="h-dvh min-h-[600px] overflow-hidden bg-white text-[#1F2937]">
+      <section className="app-shell grid h-full w-full grid-cols-[350px_minmax(0,1fr)] overflow-hidden bg-white">
         <section className="flex min-h-0 flex-col border-r border-[#E5E7EB] bg-white">
           <header className="border-b border-[#E5E7EB] px-5 py-5">
             <div className="text-xs uppercase tracking-widest text-gray-500">
@@ -761,10 +761,6 @@ export default function App() {
               <div ref={historyEnd} />
             </div>
           </div>
-
-          <div role="status" className="px-5 text-xs text-gray-500">
-            {notice}
-          </div>
           <footer className="shrink-0 border-t border-[#E5E7EB] bg-white px-5 py-3">
             {attachment && (
               <div className="mb-3 flex items-center gap-3 text-xs">
@@ -972,4 +968,5 @@ export default function App() {
     </main>
   )
 }
+
 
