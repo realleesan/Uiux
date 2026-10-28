@@ -1,48 +1,43 @@
-# Đối chiếu wireframe với báo cáo UI UX
+# Đối chiếu wireframe với phần 1–4 của báo cáo
 
-Wireframe phục vụ nhân viên trực chat shop thời trang online trong giờ cao điểm. Phạm vi là theo dõi trách nhiệm xử lý và tiếp nối hội thoại dang dở, theo giải pháp được chọn ở phần 3 và hoàn thiện ở phần 6–7.
+Phạm vi của Nhung là wireframe: cấu trúc màn hình, vị trí thành phần, nội dung và các trạng thái nghiệp vụ theo phần 1–4. Nhóm trưởng phụ trách UI và prototype; prototype v2 áp dụng cải tiến sau kiểm thử ở phần 6–7.
 
 ## Căn cứ thiết kế
 
-| Nội dung báo cáo | Thể hiện trong wireframe |
+| Căn cứ | Thể hiện ở wireframe |
 | --- | --- |
-| Phần 1–2: Tin nhắn dồn dập khiến nhân viên mất dấu ca đang tư vấn | Danh sách phân theo trách nhiệm xử lý; ca đến hạn được ưu tiên ở đầu |
-| Phần 3: Cần trả lời, Chờ khách, Tạm hoãn | Ba tab có số lượng riêng; mở hội thoại không làm đổi trách nhiệm xử lý |
-| Phần 4 mục 1.2: Hai vùng, tab ở đầu danh sách | Bỏ cột điều hướng riêng; bên trái là danh sách và tab, bên phải là khung chat |
-| Phần 4 mục 1.6: Gửi thành công chuyển ngầm sang Chờ khách | Giữ tab Cần trả lời và mở khách tiếp theo trong danh sách đang xem |
-| Phần 3 mục 3.3: Tạm hoãn 3/5 phút | Bộ đếm ngược theo thời gian thực; hết hạn tự đưa về Cần trả lời |
-| Phần 3 mục 3.3: Mở lại trước hạn | Nút Tạm hoãn trên tiêu đề mở tùy chọn Mở lại trước hạn |
-| Phần 4 mục 3.2: Khách nhắn thêm khi đang hoãn | Sự kiện khách phản hồi hủy hẹn giờ và đưa ca về Cần trả lời |
-| Phần 4 mục 3.2: Gửi lỗi | Khi trình duyệt ngoại tuyến, báo Chưa gửi được, giữ nội dung và cho Thử lại |
-| Phần 6 cải tiến 1 và phần 7: Nhận biết ca quay về ngay từ danh sách | Viền cam quanh thẻ, biểu tượng đồng hồ, nhãn Đến hạn nhắc việc, ghi chú và banner trong chat |
-| Phần 6 cải tiến 2 và phần 7: Tối ưu thao tác tạm hoãn | Mặc định 3 phút mỗi lần mở, tự focus ghi chú, Enter xác nhận; Shift+Enter xuống dòng |
-| Phần 4 mục 1.4: Phản hồi văn bản và ảnh | Soạn tin, xem trước ảnh đính kèm, xóa ảnh trước gửi và gửi ảnh mẫu |
+| Phần 1–2: Khó theo dõi tư vấn dang dở, không rõ ai đang chờ ai | Tổ chức danh sách theo trách nhiệm xử lý tiếp theo |
+| Phần 3: Giải pháp được chọn | Ba tab Cần trả lời, Chờ khách, Tạm hoãn; có số lượng hội thoại |
+| Phần 4 mục 1.2: Cấu trúc thông tin | Hai vùng chính: danh sách bên trái, khung chat bên phải; tab và tìm kiếm ở đầu danh sách |
+| Phần 4 mục 1.4: Thẻ hội thoại và khung chat | Tên khách, kênh Messenger, tin xem trước, lịch sử hai chiều, mốc thời gian, ô soạn, gửi ảnh và nút Gửi |
+| Phần 3 mục 3.3 và phần 4 mục 1.6: Tạm hoãn | Nút trên tiêu đề, chọn 3 hoặc 5 phút, chuyển sang Tạm hoãn, quay về đầu Cần trả lời khi hết hạn |
+| Phần 4 mục 3.2: Ca hết hạn có viền nổi bật | Giữ đường viền xám để thể hiện yêu cầu này ở mức wireframe; không dùng thiết kế cảnh báo cam, đồng hồ và nhãn mới của vòng cải tiến |
+| Phần 3 mục 3.3: Quay lại sớm | Mở lại trước hạn để tiếp tục tư vấn |
+| Phần 4 mục 3.2: Khách nhắn thêm khi đang hoãn | Hủy tạm hoãn, đưa hội thoại về Cần trả lời |
+| Phần 4: Hoàn tất phản hồi | Gửi thành công chuyển hội thoại sang Chờ khách; giữ Cần trả lời và mở ca tiếp theo |
+| Phần 4 mục 3.2: Gửi lỗi | Trạng thái Chưa gửi được, nút Thử lại, giữ nội dung |
 
-## Các trạng thái nên chụp để đưa vào phần wireframe
+## Các màn và trạng thái thuộc phần wireframe
 
-1. Cần trả lời: Danh sách khách đang chờ shop và khung chat đang mở.
-2. Hộp thoại Tạm hoãn: 3 phút được chọn sẵn, ghi chú đang nhập.
-3. Tạm hoãn: Ca đã lưu, thời gian còn lại và ghi chú tra cứu.
-4. Đến hạn: Thẻ viền cam đứng đầu Cần trả lời và banner nhắc việc trong chat.
-5. Sau khi gửi: Ca vừa xử lý xuất hiện trong Chờ khách; Cần trả lời mở ca tiếp theo.
-6. Nhánh ngoại lệ: Khách phản hồi trước hạn và gửi lỗi có nút Thử lại.
-7. Trạng thái rỗng: Không có hội thoại phù hợp trong tab hoặc kết quả tìm kiếm.
+1. Cần trả lời: danh sách và hội thoại đang mở.
+2. Hộp thoại Tạm hoãn: hai lựa chọn 3 phút và 5 phút, chưa chọn sẵn; ghi chú tùy chọn; Hủy và Xác nhận tạm hoãn.
+3. Tạm hoãn: hội thoại đã hẹn giờ, ghi chú và thời gian còn lại.
+4. Đến hạn quay lại: hội thoại ở đầu Cần trả lời; đường viền xám và thông báo nhắc trong khung chat.
+5. Chờ khách: hội thoại shop đã phản hồi, đang chờ khách cung cấp thông tin hoặc quyết định.
+6. Ngoại lệ: khách nhắn thêm trước hạn; gửi lỗi và Thử lại.
+7. Danh sách rỗng và không có kết quả tìm kiếm.
 
-## Kịch bản xem thử
+## Những chi tiết đã gỡ khỏi bản wireframe
 
-- Mở Minh Trang, nhập một tin rồi chuyển sang khách khác và quay lại: bản nháp được giữ riêng theo khách.
-- Chọn một ca, bấm Tạm hoãn, nhập ghi chú và Enter. Chuyển sang Tạm hoãn để xem bộ đếm. Sau 3 phút, ca tự quay về đầu Cần trả lời với viền cam.
-- Trong một ca đang tạm hoãn, mở menu ba chấm và chọn Ghi nhận khách vừa phản hồi để mô phỏng sự kiện khách gửi tin trước hạn. Bộ đếm bị hủy, ca chuyển về Cần trả lời. Đây là thao tác trình diễn prototype, không phải kết nối nhận tin Facebook.
-- Trong ca đang hoãn, bấm nút trạng thái trên tiêu đề rồi chọn Mở lại trước hạn để tiếp tục ngay.
-- Gửi một tin từ Cần trả lời: số lượng giảm, ca chuyển sang Chờ khách, màn hình mở ca tiếp theo.
-- Để thử nhánh lỗi, chuyển trình duyệt sang ngoại tuyến, bấm Gửi, sau đó khôi phục kết nối và bấm Thử lại.
+- Viền cam và nền cam trên thẻ hội thoại đến hạn.
+- Biểu tượng đồng hồ báo thức và nhãn Đến hạn nhắc việc ngay trên thẻ.
+- Ghi chú nhắc việc nổi bật ngay trong thẻ danh sách.
+- Mặc định chọn sẵn 3 phút khi mở hộp thoại.
+- Tự động focus vào ô ghi chú.
+- Phím Enter xác nhận tạm hoãn. Enter trong ghi chú dùng để xuống dòng bình thường.
 
-## Phạm vi và lưu ý khi trình bày
+Các chi tiết này thuộc cải tiến ở phần 6–7 và dành cho công việc prototype v2 của nhóm trưởng. Bản wireframe không được dùng làm bằng chứng rằng các cải tiến đã được kiểm thử thành công.
 
-Không bổ sung quản lý đơn hàng, bảng điều khiển doanh thu, chatbot, đa kênh hoặc tồn kho tích hợp vì phần 3 mục 5.2 đã xác định ngoài MVP. Việc thu thập địa chỉ và chốt đơn vẫn diễn ra qua nội dung chat.
+## Giới hạn
 
-Nghiên cứu ở phần 1–2 cung cấp bối cảnh; các ý tưởng không được chọn ở phần 3 không tự trở thành yêu cầu giao diện. Bản thiết kế ưu tiên giải pháp đã chọn, cấu trúc ở phần 4 và cải tiến cuối ở phần 6–7.
-
-Dữ liệu hội thoại và gửi tin được mô phỏng trong bộ nhớ, tải lại trang sẽ đặt lại dữ liệu. Chưa có kết nối Facebook hoặc máy chủ gửi tin. Nhánh lỗi kiểm tra trạng thái mạng của trình duyệt, chưa mô phỏng lỗi từ máy chủ.
-
-Kiểm tra đã thực hiện: TypeScript không phát hiện lỗi và Vite build thành công. Chưa kiểm tra hiển thị, tương tác trên trình duyệt thực tế. Các chỉ số 3/3 người dùng hoặc dưới 2 giây là nội dung nhóm nêu trong báo cáo, không phải kết quả kiểm thử mới của bản code này.
+Mã hiện có giữ các tương tác minh họa để xem các trạng thái wireframe. Đây không phải bàn giao UI hoàn thiện hoặc prototype v2. Dữ liệu là mẫu, chưa kết nối Facebook, kho hoặc máy chủ gửi tin. Không bổ sung chatbot, đa kênh, quản lý kho, dashboard doanh thu hoặc quản lý đơn hàng ngoài MVP phần 3.

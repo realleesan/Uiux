@@ -180,7 +180,7 @@ export default function App() {
   const [snoozeOpen, setSnoozeOpen] = useState(false)
   const [snoozeMenuOpen, setSnoozeMenuOpen] = useState(false)
   const [moreMenuOpen, setMoreMenuOpen] = useState(false)
-  const [snoozeDelay, setSnoozeDelay] = useState("3 phút")
+  const [snoozeDelay, setSnoozeDelay] = useState("")
   const [snoozeNote, setSnoozeNote] = useState("")
 
   const [now, setNow] = useState(Date.now())
@@ -225,6 +225,7 @@ export default function App() {
     )
   }
   function confirmSnooze() {
+    if (!snoozeDelay) return
     setChats((current) =>
       current.map((chat, index) =>
         index === activeChat
@@ -456,7 +457,7 @@ export default function App() {
                   }}
                   className={`mb-1 w-full rounded-md border-l-[3px] p-3 text-left ${
                     chat.returnedNote
-                      ? "border border-orange-500 border-l-[3px] bg-orange-50"
+                      ? "border border-[#6B7280] border-l-[3px] bg-white"
                       : active
                         ? "border-[#1F2937] bg-[#F3F4F6]"
                         : "border-transparent hover:bg-[#F4F5F7]"
@@ -479,9 +480,7 @@ export default function App() {
                           {chat.name}
                         </span>
                         <span className="shrink-0 text-[11px] text-[#6B7280]">
-                          {chat.returnedNote
-                            ? "⏰ Đến hạn nhắc việc"
-                            : chat.time}
+                          {chat.time}
                         </span>
                       </div>
                       <div
@@ -494,11 +493,7 @@ export default function App() {
                         {chat.snippet}
                       </div>
                       <div className="mt-2 flex justify-end">
-                        {chat.returnedNote ? (
-                          <span className="text-xs font-semibold text-orange-700">
-                            {chat.returnedNote}
-                          </span>
-                        ) : chat.unread ? (
+                        {chat.unread ? (
                           <div className="flex items-center gap-2">
                             <span className="size-2 rounded-full bg-[#1F2937]" />
                             <span className="rounded-full border border-[#1F2937] bg-white px-2 py-1 text-[10px] font-bold text-[#1F2937]">
@@ -546,7 +541,7 @@ export default function App() {
                     setSnoozeMenuOpen((open) => !open)
                     setMoreMenuOpen(false)
                   } else {
-                    setSnoozeDelay("3 phút")
+                    setSnoozeDelay("")
                     setSnoozeNote("")
                     setSnoozeOpen(true)
                   }
@@ -638,8 +633,8 @@ export default function App() {
           <div className="min-h-0 flex-1 overflow-y-auto bg-[#FAFAFA] px-8 py-6">
             <div className="mx-auto flex max-w-3xl flex-col">
               {customer.returnedNote && (
-                <div className="sticky top-0 z-10 mb-5 rounded-md border border-orange-500 bg-orange-50 px-4 py-3 text-sm leading-5 shadow-sm">
-                  <span className="font-semibold">⏰ Hệ thống:</span> Đã đến hạn
+                <div className="sticky top-0 z-10 mb-5 rounded-md border border-[#9CA3AF] bg-[#F3F4F6] px-4 py-3 text-sm leading-5 shadow-sm">
+                  <span className="font-semibold">Hệ thống:</span> Đã đến hạn
                   nhắc nhở quay lại hội thoại. Ghi chú của bạn:{" "}
                   <span className="font-bold">'{customer.returnedNote}'</span>
                 </div>
@@ -900,18 +895,7 @@ export default function App() {
           <section
             aria-labelledby="snooze-title"
             aria-modal="true"
-            onKeyDown={(event) => {
-              if (event.key === "Escape") setSnoozeOpen(false)
-              if (
-                event.key === "Enter" &&
-                event.target instanceof HTMLTextAreaElement &&
-                !event.shiftKey &&
-                !event.nativeEvent.isComposing
-              ) {
-                event.preventDefault()
-                confirmSnooze()
-              }
-            }}
+            onKeyDown={(event) => { if (event.key === "Escape") setSnoozeOpen(false) }}
             role="dialog"
             className="w-[440px] max-w-full overflow-hidden rounded-lg border border-[#374151] bg-white shadow-2xl"
           >
@@ -958,7 +942,6 @@ export default function App() {
                 Ghi chú nhanh (Tùy chọn):
               </label>
               <textarea
-                autoFocus
                 id="snooze-note"
                 value={snoozeNote}
                 onChange={(event) => setSnoozeNote(event.target.value)}
@@ -977,8 +960,9 @@ export default function App() {
               </button>
               <button
                 type="button"
+                disabled={!snoozeDelay}
                 onClick={confirmSnooze}
-                className="rounded-md bg-[#1F2937] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#374151]"
+                className="rounded-md bg-[#1F2937] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#374151] disabled:cursor-not-allowed disabled:bg-[#D1D5DB] disabled:text-[#6B7280]"
               >
                 Xác nhận tạm hoãn
               </button>
