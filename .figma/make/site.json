@@ -1,0 +1,10 @@
+{
+  "description": "Streamline customer support with an intuitive chat interface, enabling agents to manage conversations efficiently and enhance customer satisfaction.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
