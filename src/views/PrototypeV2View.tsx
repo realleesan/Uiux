@@ -23,7 +23,7 @@ export default function PrototypeV2View() {
   const [snoozeMenuOpen, setSnoozeMenuOpen] = useState(false)
   const [moreMenuOpen, setMoreMenuOpen] = useState(false)
 
-  // V2 (Cải tiến sau test): Mặc định sẵn 3 phút (Giải quyết Issue 2 trong Phần 6)
+  // V2: Đã chọn sẵn mốc 3 phút (Giải quyết Issue 2 trong Phần 6)
   const [snoozeDelay, setSnoozeDelay] = useState("3 phút")
   const [snoozeNote, setSnoozeNote] = useState("")
   const snoozeInputRef = useRef<HTMLInputElement>(null)
@@ -40,7 +40,7 @@ export default function PrototypeV2View() {
     setSnoozeMenuOpen(false)
   }, [activeChat])
 
-  // V2: Tự động focus con trỏ chuột vào ô ghi chú khi mở modal
+  // V2: Tự động focus ô ghi chú
   useEffect(() => {
     if (snoozeOpen) {
       setTimeout(() => snoozeInputRef.current?.focus(), 50)
@@ -108,7 +108,6 @@ export default function PrototypeV2View() {
     if (next) setActiveChat(chats.indexOf(next))
   }
 
-  // Giả lập hết giờ hẹn ngay lập tức (tiện cho việc test)
   function triggerExpireSnoozeImmediately() {
     setChats((current: Chat[]) =>
       current.map((chat: Chat, idx: number) =>
@@ -152,7 +151,6 @@ export default function PrototypeV2View() {
           .includes(search.toLowerCase()),
     )
     .sort((a: Chat, b: Chat) => {
-      // Ưu tiên ca hết hạn tạm hoãn quay về
       return (
         Number(Boolean(b.returnedNote)) - Number(Boolean(a.returnedNote)) ||
         Number(b.time === "Vừa xong") - Number(a.time === "Vừa xong") ||
@@ -175,7 +173,6 @@ export default function PrototypeV2View() {
 
   const customer = chats[activeChat]
 
-  // Gợi ý tin nhắn mẫu nhanh dành cho nhân viên tư vấn thời trang
   const quickReplies = [
     "Dạ mẫu này bên em còn sẵn size M màu trắng ạ!",
     "Dạ form này chuẩn size, bạn mặc M là vừa xinh nhé.",
@@ -197,7 +194,6 @@ export default function PrototypeV2View() {
     const textToSend = message.trim()
     const nowTime = "Vừa xong"
 
-    // Thêm tin nhắn vào lịch sử
     setHistories((prev: HistoryMessage[][]) => {
       const next = [...prev]
       const currentList = next[activeChat] ? [...next[activeChat]] : []
@@ -226,7 +222,6 @@ export default function PrototypeV2View() {
     )
     const nextNeedsReply = nextChatInList ? chats.indexOf(nextChatInList) : -1
 
-    // Tự động chuyển hội thoại sang tab Chờ khách
     setChats((current: Chat[]) =>
       current.map((chat: Chat, index: number) =>
         index === activeChat
@@ -295,62 +290,50 @@ export default function PrototypeV2View() {
   }
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-slate-100 text-slate-800">
-      {/* ===================== CỘT BÊN TRÁI: DANH SÁCH HỘI THOẠI (360px) ===================== */}
-      <aside className="flex w-[360px] shrink-0 flex-col border-r border-slate-200 bg-white">
-        {/* Header Shop & Ca trực tư vấn */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 bg-white">
+    <div className="flex h-full w-full overflow-hidden bg-white text-slate-800">
+      {/* ===================== CỘT TRÁI: SIDEBAR HỘI THOẠI (340px) ===================== */}
+      <aside className="flex w-[340px] shrink-0 flex-col border-r border-slate-200 bg-white">
+        {/* Header Shop & Ca trực */}
+        <div className="flex h-14 items-center justify-between border-b border-slate-200 px-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-xs">
-              A
+            <div className="flex size-8 items-center justify-center rounded-lg bg-blue-600 font-bold text-white text-xs shadow-xs">
+              AC
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="text-sm font-bold text-slate-900 leading-tight">
+                <span className="text-sm font-bold text-slate-900 leading-none">
                   ANNA Closet
-                </h1>
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.2 text-[9.5px] font-semibold text-emerald-700">
-                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Đang trực
                 </span>
+                <span className="inline-block size-2 rounded-full bg-emerald-500" title="Đang trực ca" />
               </div>
-              <p className="text-[11px] text-slate-500">
-                NV: <span className="font-semibold text-slate-700">Nguyễn Vy</span> · Ca tối 20h-22h
-              </p>
+              <span className="text-xs text-emerald-600 font-medium">
+                NV: Nguyễn Vy (Bản Prototype v2)
+              </span>
             </div>
           </div>
-          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-            Prototype v2 (Cải tiến)
-          </span>
         </div>
 
         {/* 3 Tab Nghiệp vụ: Cần trả lời, Chờ khách, Tạm hoãn */}
-        <div className="border-b border-slate-200 bg-slate-50/70 p-2">
-          <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-200/70 p-1">
+        <div className="border-b border-slate-200 px-3 pt-2 pb-0">
+          <div className="flex gap-4">
             {[
               {
                 id: "Cần trả lời",
                 label: "Cần trả lời",
                 count: conversationCounts.needsReply,
-                activeBg: "bg-white text-blue-600 shadow-xs font-bold",
-                badgeActive: "bg-rose-500 text-white",
-                badgeInactive: "bg-rose-100 text-rose-700 font-bold",
+                color: "text-rose-600 bg-rose-50",
               },
               {
                 id: "Chờ khách",
                 label: "Chờ khách",
                 count: conversationCounts.waiting,
-                activeBg: "bg-white text-slate-800 shadow-xs font-bold",
-                badgeActive: "bg-slate-700 text-white",
-                badgeInactive: "bg-slate-200 text-slate-700",
+                color: "text-slate-600 bg-slate-100",
               },
               {
                 id: "Tạm hoãn",
                 label: "Tạm hoãn",
                 count: conversationCounts.snoozed,
-                activeBg: "bg-white text-amber-700 shadow-xs font-bold",
-                badgeActive: "bg-amber-600 text-white",
-                badgeInactive: "bg-amber-100 text-amber-800 font-bold",
+                color: "text-amber-700 bg-amber-50",
               },
             ].map((tab) => {
               const isActive = activeNav === tab.id
@@ -363,45 +346,34 @@ export default function PrototypeV2View() {
                     setMoreMenuOpen(false)
                     setSnoozeMenuOpen(false)
                   }}
-                  className={`flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs transition-all ${
+                  className={`relative flex items-center gap-1.5 pb-2.5 text-xs font-semibold transition-colors ${
                     isActive
-                      ? tab.activeBg
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white/40 font-medium"
+                      ? "text-blue-600"
+                      : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
-                  <span className="truncate">{tab.label}</span>
+                  <span>{tab.label}</span>
                   <span
-                    className={`rounded-full px-1.5 py-0.2 text-[10px] ${
-                      isActive ? tab.badgeActive : tab.badgeInactive
+                    className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                      isActive ? "bg-blue-600 text-white" : tab.color
                     }`}
                   >
                     {tab.count}
                   </span>
+                  {isActive && (
+                    <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-blue-600" />
+                  )}
                 </button>
               )
             })}
           </div>
         </div>
 
-        {/* Dòng định hướng nghiệp vụ (Sub-header IA) */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-3.5 py-2 text-[11px]">
-          <span className="font-semibold text-slate-600">
-            {activeStatus === "needsReply"
-              ? "Shop cần xử lý tiếp · Ca đến hạn ưu tiên"
-              : activeStatus === "waiting"
-                ? "Đang chờ khách phản hồi tư vấn"
-                : "Shop còn cam kết · Đang hẹn giờ kiểm tra kho"}
-          </span>
-          <span className="font-bold text-slate-400">
-            {visibleChats.length} hội thoại
-          </span>
-        </div>
-
-        {/* Ô Tìm kiếm khách hàng */}
-        <div className="px-3 py-2 border-b border-slate-100 bg-white">
+        {/* Thanh Tìm kiếm */}
+        <div className="p-3 border-b border-slate-100">
           <div className="relative flex items-center">
             <svg
-              className="absolute left-3 size-3.5 text-slate-400"
+              className="absolute left-3 size-4 text-slate-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -414,23 +386,23 @@ export default function PrototypeV2View() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm theo tên khách, sản phẩm..."
-              className="h-8.5 w-full rounded-lg bg-slate-100/80 pl-8.5 pr-3 text-xs text-slate-800 outline-none transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 border border-transparent"
+              className="h-9 w-full rounded-lg bg-slate-100 pl-9 pr-3 text-xs text-slate-800 outline-none transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 border border-transparent"
             />
           </div>
         </div>
 
         {/* Danh sách thẻ hội thoại (V2: Có viền cam nổi bật & icon đồng hồ báo thức khi hết hạn) */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-1.5 bg-slate-50/40">
+        <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
           {visibleChats.length === 0 ? (
             <div className="flex h-48 flex-col items-center justify-center text-center text-slate-400">
               <span className="text-2xl mb-1">📭</span>
-              <p className="text-xs">Không có hội thoại nào trong mục này</p>
+              <p className="text-xs">Không có hội thoại nào</p>
             </div>
           ) : (
             visibleChats.map((chat: Chat) => {
               const index = chats.indexOf(chat)
               const isActive = activeChat === index
-              const isReturnedFromSnooze = Boolean(chat.returnedNote)
+              const isReturned = Boolean(chat.returnedNote)
 
               return (
                 <div
@@ -443,51 +415,49 @@ export default function PrototypeV2View() {
                       ),
                     )
                   }}
-                  className={`group relative flex cursor-pointer items-start gap-3 rounded-xl p-3 transition-all border ${
-                    // V2 CẢI TIẾN: Thẻ hết hạn có viền cam đậm + nền vàng/cam nổi bật + đổ bóng
-                    isReturnedFromSnooze
-                      ? "border-2 border-amber-500 bg-amber-50/70 shadow-sm ring-2 ring-amber-200/50"
+                  className={`group relative flex cursor-pointer items-start gap-3 p-3 transition-colors ${
+                    isReturned
+                      ? "bg-amber-50/70 border-l-[3px] border-l-amber-500"
                       : isActive
-                        ? "bg-blue-50/80 border-blue-500 shadow-xs"
-                        : "bg-white hover:bg-slate-50/80 border-slate-200/70"
+                        ? "bg-blue-50/70 border-l-[3px] border-l-blue-600"
+                        : "hover:bg-slate-50 border-l-[3px] border-l-transparent"
                   }`}
                 >
-                  {/* Avatar kèm Messenger Badge */}
+                  {/* Avatar */}
                   <div className="relative shrink-0 mt-0.5">
                     <img
                       src={chat.avatar}
                       alt={chat.name}
                       className={`size-10 rounded-full object-cover ring-1 ${
-                        isReturnedFromSnooze ? "ring-2 ring-amber-500" : "ring-slate-200"
+                        isReturned ? "ring-2 ring-amber-500" : "ring-slate-200"
                       }`}
                     />
                     <span
-                      className="absolute -bottom-0.5 -right-0.5 grid size-4 place-items-center rounded-full bg-[#0084FF] text-white shadow-xs"
+                      className="absolute -bottom-0.5 -right-0.5 grid size-3.5 place-items-center rounded-full bg-[#0084FF] text-white"
                       title="Facebook Messenger"
                     >
-                      <svg className="size-2.5 fill-current" viewBox="0 0 24 24">
+                      <svg className="size-2 fill-current" viewBox="0 0 24 24">
                         <path d="M12 2C6.48 2 2 6.14 2 11.25c0 2.91 1.45 5.51 3.73 7.15V22l3.41-1.87c.92.25 1.89.39 2.86.39 5.52 0 10-4.14 10-9.25S17.52 2 12 2zm1.06 12.44l-2.61-2.79-5.1 2.79 5.61-5.96 2.67 2.79 5.04-2.79-5.61 5.96z" />
                       </svg>
                     </span>
                   </div>
 
-                  {/* Nội dung tóm tắt thẻ */}
+                  {/* Nội dung tóm tắt */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
                       <div className="flex items-center gap-1.5 truncate">
-                        {/* V2 CẢI TIẾN: Icon đồng hồ báo thức ⏰ nhấp nháy trên thẻ */}
-                        {isReturnedFromSnooze && (
+                        {isReturned && (
                           <span
-                            className="inline-flex size-4.5 items-center justify-center rounded-full bg-amber-500 text-white text-[10px] shadow-xs animate-bounce"
-                            title="Hết hạn tạm hoãn tra kho - Ưu tiên xử lý"
+                            className="inline-flex size-4 items-center justify-center rounded-full bg-amber-500 text-white text-[10px]"
+                            title="Hết hạn tạm hoãn"
                           >
                             ⏰
                           </span>
                         )}
                         <span
-                          className={`truncate text-xs ${
-                            isReturnedFromSnooze
-                              ? "font-black text-amber-950"
+                          className={`truncate text-sm ${
+                            isReturned
+                              ? "font-bold text-amber-950"
                               : chat.unread
                                 ? "font-bold text-slate-900"
                                 : "font-semibold text-slate-800"
@@ -496,45 +466,39 @@ export default function PrototypeV2View() {
                           {chat.name}
                         </span>
                       </div>
-                      <span className="shrink-0 text-[10px] text-slate-400">
+                      <span className="shrink-0 text-[11px] text-slate-400">
                         {chat.time}
                       </span>
                     </div>
 
-                    {/* V2 CẢI TIẾN: Ghi chú nhắc việc hiển thị trực tiếp trên thẻ danh sách */}
-                    {isReturnedFromSnooze ? (
-                      <p className="mt-1 line-clamp-1 text-[11px] font-bold text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded">
-                        📌 {chat.returnedNote}
-                      </p>
-                    ) : (
-                      <p
-                        className={`mt-0.5 line-clamp-1 text-[11px] leading-snug ${
-                          chat.unread
-                            ? "font-semibold text-slate-900"
+                    <p
+                      className={`mt-0.5 line-clamp-1 text-xs leading-normal ${
+                        isReturned
+                          ? "font-semibold text-amber-800"
+                          : chat.unread
+                            ? "font-medium text-slate-900"
                             : "text-slate-500"
-                        }`}
-                      >
-                        {chat.snippet}
-                      </p>
-                    )}
+                      }`}
+                    >
+                      {isReturned ? `📌 ${chat.returnedNote}` : chat.snippet}
+                    </p>
 
                     <div className="mt-1.5 flex items-center justify-between gap-1">
-                      <span className="truncate rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+                      <span className="truncate rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600">
                         {chat.productTag || "Áo/Váy nữ"}
                       </span>
 
-                      {/* V2 CẢI TIẾN: Badge màu cam cảnh báo hết hạn tra kho */}
-                      {isReturnedFromSnooze ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-600 px-2 py-0.2 text-[9.5px] font-extrabold text-white shadow-xs">
+                      {isReturned ? (
+                        <span className="inline-flex items-center rounded-full bg-amber-600 px-2 py-0.2 text-[10px] font-bold text-white">
                           Ưu tiên số 1
                         </span>
                       ) : chat.unread ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.2 text-[9.5px] font-bold text-white shadow-xs">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.2 text-[10px] font-bold text-white">
                           <span className="size-1 rounded-full bg-white animate-pulse" />
                           Đang đợi {chat.wait}
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[11px] text-slate-400">
                           {chat.status === "snoozed"
                             ? `Còn ${remaining(chat)}`
                             : chat.status === "waiting"
@@ -551,16 +515,16 @@ export default function PrototypeV2View() {
         </div>
       </aside>
 
-      {/* ===================== CỘT BÊN PHẢI: KHUNG CHAT RỘNG RÃI ===================== */}
+      {/* ===================== CỘT PHẢI: KHUNG CHAT ===================== */}
       <main className="flex min-h-0 flex-1 flex-col bg-white">
-        {/* Header khung chat: Đầy đủ bối cảnh khách + Nút thao tác */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 px-6 bg-white shadow-2xs">
+        {/* Header khung chat (56px) */}
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 px-6 bg-white">
           <div className="flex items-center gap-3">
             <div className="relative">
               <img
                 src={customer?.avatar}
                 alt={customer?.name}
-                className="size-9.5 rounded-full object-cover ring-1 ring-slate-200"
+                className="size-9 rounded-full object-cover ring-1 ring-slate-200"
               />
               <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-1.5 ring-white" />
             </div>
@@ -577,20 +541,19 @@ export default function PrototypeV2View() {
                       : "Đang tạm hoãn"}
                 </span>
                 {customer?.returnedNote && (
-                  <span className="rounded-full bg-amber-500 px-2 py-0.2 text-[10px] font-bold text-white shadow-xs animate-pulse">
+                  <span className="rounded-full bg-amber-500 px-2 py-0.2 text-[10px] font-bold text-white">
                     ⏰ Hết hạn tra kho
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-slate-500">
-                Kênh: <span className="font-semibold text-blue-600">Facebook Messenger</span> · Khách hỏi: <span className="font-semibold text-slate-700">{customer?.productTag}</span> ({customer?.orderPrice})
+              <p className="text-xs text-slate-500">
+                Quan tâm: <span className="font-semibold text-slate-700">{customer?.productTag}</span> ({customer?.orderPrice})
               </p>
             </div>
           </div>
 
-          {/* Nhóm nút thao tác */}
+          {/* Action buttons */}
           <div className="flex items-center gap-2">
-            {/* Nút Tạm hoãn */}
             <div className="relative">
               <button
                 type="button"
@@ -599,7 +562,6 @@ export default function PrototypeV2View() {
                     setSnoozeMenuOpen((v) => !v)
                     setMoreMenuOpen(false)
                   } else {
-                    // V2: Reset về mốc mặc định 3 phút và chuẩn bị auto-focus
                     setSnoozeDelay("3 phút")
                     setSnoozeNote("")
                     setSnoozeOpen(true)
@@ -607,8 +569,8 @@ export default function PrototypeV2View() {
                 }}
                 className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
                   customer?.status === "snoozed"
-                    ? "bg-amber-600 text-white shadow-xs hover:bg-amber-700"
-                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
+                    ? "bg-amber-600 text-white hover:bg-amber-700"
+                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                 }`}
               >
                 <svg
@@ -629,7 +591,7 @@ export default function PrototypeV2View() {
               </button>
 
               {snoozeMenuOpen && customer?.status === "snoozed" && (
-                <div className="absolute right-0 top-full z-30 mt-1.5 w-48 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+                <div className="absolute right-0 top-full z-30 mt-1 w-44 rounded-xl border border-slate-200 bg-white p-1 shadow-lg text-xs">
                   <button
                     type="button"
                     onClick={() => {
@@ -650,7 +612,7 @@ export default function PrototypeV2View() {
                       setActiveNav("Cần trả lời")
                       setSnoozeMenuOpen(false)
                     }}
-                    className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600"
+                    className="w-full rounded-lg px-3 py-2 text-left font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600"
                   >
                     Mở lại trước hạn
                   </button>
@@ -660,15 +622,14 @@ export default function PrototypeV2View() {
                       triggerExpireSnoozeImmediately()
                       setSnoozeMenuOpen(false)
                     }}
-                    className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-amber-700 hover:bg-amber-50"
+                    className="w-full rounded-lg px-3 py-2 text-left font-semibold text-amber-700 hover:bg-amber-50"
                   >
-                    ⚡ Giả lập: Hết giờ ngay
+                    ⚡ Hết giờ ngay
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Menu 3 chấm (Tiện ích giả lập kiểm thử UX) */}
             <div className="relative">
               <button
                 type="button"
@@ -676,7 +637,7 @@ export default function PrototypeV2View() {
                   setMoreMenuOpen((v) => !v)
                   setSnoozeMenuOpen(false)
                 }}
-                className="grid size-8.5 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 shadow-2xs"
+                className="grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
                 title="Tùy chọn khác"
               >
                 <svg className="size-4" fill="currentColor" viewBox="0 0 24 24">
@@ -687,7 +648,7 @@ export default function PrototypeV2View() {
               </button>
 
               {moreMenuOpen && (
-                <div className="absolute right-0 top-full z-30 mt-1.5 w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl text-xs">
+                <div className="absolute right-0 top-full z-30 mt-1 w-52 rounded-xl border border-slate-200 bg-white p-1 shadow-xl text-xs">
                   <button
                     type="button"
                     onClick={() => {
@@ -731,65 +692,20 @@ export default function PrototypeV2View() {
           </div>
         </header>
 
-        {/* Băng thông tin Sản phẩm đang hỏi (Gia tăng bối cảnh CSKH thời trang) */}
-        <div className="flex items-center justify-between border-b border-slate-200/70 bg-slate-50/70 px-6 py-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-500">Đang quan tâm:</span>
-            <span className="rounded bg-blue-100/70 px-2 py-0.5 font-bold text-blue-700">
-              {customer?.productTag}
-            </span>
-            <span className="font-semibold text-slate-700">
-              {customer?.orderPrice}
-            </span>
-            <span className="text-slate-400">·</span>
-            <span className="text-emerald-600 font-medium">Kho còn: 3 chiếc (Size M)</span>
-          </div>
-          <span className="text-[11px] text-slate-400">
-            Mục tiêu: Tư vấn size &gt; Gửi ảnh &gt; Chốt đơn
-          </span>
-        </div>
-
-        {/* Khung Tin nhắn cuộn: Tràn viền tự nhiên, bong bóng chuẩn Messenger */}
-        <div className="flex-1 overflow-y-auto bg-[#F4F6F9] px-6 py-5">
-          <div className="flex min-h-full flex-col justify-end space-y-3.5">
-            {/* Banner Nhắc việc khi hết hạn tạm hoãn quay về */}
+        {/* Khung Tin nhắn cuộn */}
+        <div className="flex-1 overflow-y-auto bg-slate-50/60 px-8 py-6">
+          <div className="flex min-h-full flex-col justify-end space-y-4">
+            {/* Banner Nhắc việc khi hết hạn tạm hoãn */}
             {customer?.returnedNote && (
-              <div className="rounded-xl border-2 border-amber-400 bg-amber-50 p-3.5 text-xs text-amber-900 shadow-sm animate-in fade-in duration-200">
-                <div className="flex items-center justify-between font-bold text-amber-900 mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">⏰</span>
-                    <span>Hệ thống nhắc việc tự động: Đã hết thời gian hẹn giờ tra kho!</span>
-                  </div>
-                  <span className="rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-extrabold text-amber-800">
-                    Ưu tiên tiếp tục tư vấn
-                  </span>
-                </div>
-                <p className="text-slate-700">
+              <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-900 shadow-xs">
+                <span className="font-bold text-amber-800">
+                  ⏰ Hệ thống nhắc việc tự động: Đã hết thời gian hẹn giờ tra kho!
+                </span>
+                <p className="mt-0.5 text-slate-700">
                   Ghi chú kiểm kho của bạn:{" "}
-                  <span className="font-bold text-slate-900 underline decoration-amber-400 decoration-2">
+                  <span className="font-bold text-slate-900">
                     "{customer.returnedNote}"
                   </span>
-                </p>
-              </div>
-            )}
-
-            {/* Banner Trạng thái đang tạm hoãn */}
-            {customer?.status === "snoozed" && (
-              <div className="rounded-xl border border-amber-200 bg-white p-3 text-xs text-slate-700 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-amber-700">
-                    ⏸ Đang tạm hoãn · Còn {remaining(customer)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={triggerExpireSnoozeImmediately}
-                    className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 hover:bg-amber-200"
-                  >
-                    ⚡ Hết giờ ngay
-                  </button>
-                </div>
-                <p className="mt-1 text-slate-500">
-                  {customer.snoozeNote || "Đang kiểm tra size/kho thực tế..."}
                 </p>
               </div>
             )}
@@ -797,7 +713,7 @@ export default function PrototypeV2View() {
             {/* Mốc thời gian */}
             <div className="flex items-center gap-3 my-2">
               <div className="h-px flex-1 bg-slate-200" />
-              <span className="text-[10px] font-medium text-slate-400">Hôm nay</span>
+              <span className="text-xs font-medium text-slate-400">Hôm nay</span>
               <div className="h-px flex-1 bg-slate-200" />
             </div>
 
@@ -824,10 +740,10 @@ export default function PrototypeV2View() {
                     }`}
                   >
                     <div
-                      className={`max-w-[560px] px-4 py-2.5 text-xs leading-relaxed shadow-2xs ${
+                      className={`max-w-[560px] px-4 py-2.5 text-[13px] leading-relaxed shadow-2xs ${
                         isShop
-                          ? "rounded-2xl rounded-br-xs bg-[#0084FF] text-white"
-                          : "rounded-2xl rounded-bl-xs bg-white text-slate-800 border border-slate-200/90"
+                          ? "rounded-2xl rounded-tr-xs bg-[#0084FF] text-white"
+                          : "rounded-2xl rounded-tl-xs bg-white text-slate-800 border border-slate-200/80"
                       }`}
                     >
                       {entry.image && (
@@ -839,7 +755,7 @@ export default function PrototypeV2View() {
                       )}
                       <p className="whitespace-pre-wrap break-words">{entry.text}</p>
                     </div>
-                    <span className="mt-0.5 px-1 text-[10px] text-slate-400">
+                    <span className="mt-1 px-1 text-[11px] text-slate-400">
                       {entry.time} · {isShop ? "Đã gửi" : customer?.name}
                     </span>
                   </div>
@@ -850,26 +766,25 @@ export default function PrototypeV2View() {
           </div>
         </div>
 
-        {/* Khu vực Nhập tin nhắn & Gợi ý câu trả lời nhanh */}
+        {/* Khung Nhập tin nhắn & Gợi ý trả lời nhanh */}
         <footer className="border-t border-slate-200 bg-white p-3.5">
-          {/* Cụm nút Trả lời nhanh (Quick replies dành cho CSKH) */}
+          {/* Gợi ý trả lời nhanh */}
           <div className="mb-2.5 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-[10px] font-bold text-slate-400 shrink-0">
-              Gợi ý nhanh:
+            <span className="text-xs font-semibold text-slate-400 shrink-0">
+              Gợi ý:
             </span>
             {quickReplies.map((reply, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => setMessage(reply)}
-                className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 transition-colors"
               >
                 {reply}
               </button>
             ))}
           </div>
 
-          {/* Preview ảnh đính kèm */}
           {attachment && (
             <div className="mb-2 flex items-center justify-between rounded-lg bg-slate-100 p-2 text-xs">
               <div className="flex items-center gap-2">
@@ -878,7 +793,7 @@ export default function PrototypeV2View() {
                   alt="Preview"
                   className="size-8 rounded object-cover"
                 />
-                <span className="font-medium text-slate-700 text-[11px] truncate max-w-[200px]">
+                <span className="font-medium text-slate-700 text-xs truncate max-w-[200px]">
                   {attachment.name}
                 </span>
               </div>
@@ -894,7 +809,6 @@ export default function PrototypeV2View() {
             </div>
           )}
 
-          {/* Cảnh báo lỗi gửi do mất mạng */}
           {sendError && (
             <div className="mb-2 flex items-center justify-between rounded-lg bg-rose-50 px-3 py-1.5 text-xs text-rose-700 border border-rose-200">
               <span>⚠️ Chưa gửi được do sự cố kết nối. Nội dung được lưu lại.</span>
@@ -905,7 +819,7 @@ export default function PrototypeV2View() {
                   setSendError(false)
                   document.querySelector<HTMLFormElement>("#form-chat-v2")?.requestSubmit()
                 }}
-                className="rounded bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-rose-700"
+                className="rounded bg-rose-600 px-2 py-0.5 text-xs font-bold text-white hover:bg-rose-700"
               >
                 Thử lại
               </button>
@@ -916,56 +830,53 @@ export default function PrototypeV2View() {
           <form
             id="form-chat-v2"
             onSubmit={handleSendMessage}
-            className="flex items-center gap-2.5"
+            className="flex items-center gap-2"
           >
-            {/* Nút gửi ảnh mẫu */}
-            <label
-              className="flex size-9 cursor-pointer items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-colors shrink-0"
-              title="Gửi ảnh mẫu sản phẩm"
-            >
-              <svg
-                className="size-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="1.8"
+            <div className="flex flex-1 items-center rounded-2xl border border-slate-200 bg-slate-50/70 px-3 py-1.5 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+              <label
+                className="flex size-7 cursor-pointer items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+                title="Gửi ảnh mẫu"
               >
-                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (!file) return
-                  const reader = new FileReader()
-                  reader.onload = () => {
-                    setAttachments((prev) => ({
-                      ...prev,
-                      [activeChat]: {
-                        name: file.name,
-                        url: String(reader.result),
-                      },
-                    }))
-                  }
-                  reader.readAsDataURL(file)
-                  e.target.value = ""
-                }}
-              />
-            </label>
+                <svg
+                  className="size-4.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                      setAttachments((prev) => ({
+                        ...prev,
+                        [activeChat]: {
+                          name: file.name,
+                          url: String(reader.result),
+                        },
+                      }))
+                    }
+                    reader.readAsDataURL(file)
+                    e.target.value = ""
+                  }}
+                />
+              </label>
 
-            {/* Input nhập tin */}
-            <div className="flex flex-1 items-center rounded-full border border-slate-200 bg-slate-50/80 px-4 py-2 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all">
               <input
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Nhập nội dung tư vấn size, giá, màu sắc... (Enter để gửi)"
-                className="w-full bg-transparent text-xs text-slate-800 outline-none placeholder:text-slate-400"
+                placeholder="Nhập tin nhắn tư vấn size, giá, màu sắc... (Enter để gửi)"
+                className="w-full bg-transparent px-2.5 text-xs text-slate-800 outline-none placeholder:text-slate-400"
               />
             </div>
 
-            {/* Nút gửi tròn chuẩn Messenger */}
             <button
               type="submit"
               disabled={!message.trim() && !attachment}
@@ -986,21 +897,21 @@ export default function PrototypeV2View() {
         </footer>
       </main>
 
-      {/* ===================== MODAL TẠM HOÃN (BẢN V2: ĐÃ DEFAULT 3P + AUTO-FOCUS + ENTER) ===================== */}
+      {/* ===================== MODAL TẠM HOÃN (V2: MẶC ĐỊNH 3P + AUTO FOCUS + ENTER) ===================== */}
       {snoozeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl border border-slate-100">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <div>
                 <div className="flex items-center gap-1.5">
                   <h3 className="text-sm font-bold text-slate-900">
                     Tạm hoãn tư vấn (Hẹn giờ)
                   </h3>
-                  <span className="rounded bg-emerald-100 px-1.5 py-0.2 text-[9.5px] font-bold text-emerald-800">
-                    Tối ưu V2
+                  <span className="rounded bg-emerald-100 px-1.5 py-0.2 text-[10px] font-bold text-emerald-800">
+                    V2
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-xs text-slate-500">
                   Khách: <span className="font-semibold">{customer?.name}</span>
                 </p>
               </div>
@@ -1016,7 +927,7 @@ export default function PrototypeV2View() {
             <div className="mt-3.5 space-y-3.5 text-xs">
               <div>
                 <label className="block font-semibold text-slate-700 mb-1.5">
-                  Thời gian hẹn giờ (Đã chọn sẵn 3 phút phổ biến):
+                  Thời gian hẹn giờ (Đã chọn sẵn 3 phút):
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {["3 phút", "5 phút"].map((option) => (
@@ -1026,7 +937,7 @@ export default function PrototypeV2View() {
                       onClick={() => setSnoozeDelay(option)}
                       className={`rounded-xl border py-2 font-bold transition-all ${
                         snoozeDelay === option
-                          ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-100 shadow-2xs"
+                          ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-100"
                           : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                       }`}
                     >
@@ -1045,14 +956,13 @@ export default function PrototypeV2View() {
                   value={snoozeNote}
                   onChange={(e) => setSnoozeNote(e.target.value)}
                   onKeyDown={(e) => {
-                    // V2 CẢI TIẾN: Nhấn Enter để xác nhận hoãn ngay, không cần click chuột
                     if (e.key === "Enter") {
                       e.preventDefault()
                       confirmSnooze()
                     }
                   }}
                   placeholder="VD: Kiểm tra váy VD01 màu trắng size M trong kho (Nhấn Enter để lưu)"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all"
                 />
                 <p className="mt-1 text-[10px] text-emerald-600 font-medium">
                   ⚡ Con trỏ đã tự động trỏ sẵn vào đây · Nhấn Enter để xác nhận ngay!
