@@ -23,7 +23,7 @@ export default function PrototypeV2View() {
   const [snoozeMenuOpen, setSnoozeMenuOpen] = useState(false)
   const [moreMenuOpen, setMoreMenuOpen] = useState(false)
 
-  // V2: Đã chọn sẵn mốc 3 phút (Giải quyết Issue 2 trong Phần 6)
+  // V2 (Cải tiến sau test): Mặc định sẵn 3 phút (Giải quyết Issue 2 trong Phần 6)
   const [snoozeDelay, setSnoozeDelay] = useState("3 phút")
   const [snoozeNote, setSnoozeNote] = useState("")
   const snoozeInputRef = useRef<HTMLInputElement>(null)
@@ -173,32 +173,8 @@ export default function PrototypeV2View() {
 
   const customer = chats[activeChat]
 
-  // Cụm câu trả lời nhanh gọn gàng, chuẩn tác nghiệp CSKH
-  const quickReplies = [
-    {
-      label: "⚡ Còn size M",
-      text: "Dạ mẫu này bên em còn sẵn size M màu trắng, phù hợp số đo của bạn ạ!",
-    },
-    {
-      label: "⚡ Tư vấn size",
-      text: "Dạ với chiều cao và cân nặng của bạn thì mặc size M là chuẩn đẹp và thoải mái nhất nhé.",
-    },
-    {
-      label: "⚡ Đổi size 7 ngày",
-      text: "Dạ shop có chính sách hỗ trợ đổi size trong vòng 7 ngày, sản phẩm giữ nguyên tem mác giúp shop nhé ạ.",
-    },
-    {
-      label: "⚡ Phí ship 25k",
-      text: "Dạ phí vận chuyển toàn quốc đồng giá 25.000đ, bạn được kiểm tra hàng trước khi thanh toán ạ.",
-    },
-    {
-      label: "⚡ Chốt đơn ngay",
-      text: "Dạ bạn cho shop xin họ tên + SĐT + địa chỉ nhận hàng để shop lên đơn gửi sớm cho mình nhé!",
-    },
-  ]
-
-  function handleSendMessage(e: FormEvent) {
-    e.preventDefault()
+  function handleSendMessage(e?: FormEvent) {
+    if (e) e.preventDefault()
     if (!message.trim() && !attachment) return
 
     if (simulateOffline) {
@@ -306,614 +282,566 @@ export default function PrototypeV2View() {
   }
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-white text-slate-800">
-      {/* ===================== CỘT TRÁI: SIDEBAR HỘI THOẠI (350px) ===================== */}
-      <aside className="flex w-[350px] shrink-0 flex-col border-r border-slate-200 bg-white">
-        {/* Header Shop & Ca trực */}
-        <div className="flex h-14 items-center justify-between border-b border-slate-200 px-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-8.5 items-center justify-center rounded-lg bg-blue-600 font-bold text-white text-xs shadow-xs">
-              AC
+    <div className="h-full min-h-[600px] overflow-hidden bg-white text-slate-800">
+      <section className="grid h-full w-full grid-cols-[350px_minmax(0,1fr)] overflow-hidden bg-white">
+        {/* ===================== CỘT TRÁI: DANH SÁCH HỘI THOẠI (350px) ===================== */}
+        <section className="flex min-h-0 flex-col border-r border-slate-200 bg-white">
+          {/* Header Ca trực */}
+          <header className="border-b border-slate-200 px-5 py-4">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
+              Shop Thời Trang · Facebook Messenger
             </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-slate-900 leading-none">
-                  ANNA Closet
-                </span>
-                <span className="inline-block size-2 rounded-full bg-emerald-500" title="Đang trực ca" />
-              </div>
-              <span className="text-[11px] text-emerald-600 font-medium">
-                NV: Nguyễn Vy · Prototype v2
-              </span>
-            </div>
-          </div>
-        </div>
+            <h1 className="mt-1 text-lg font-bold text-slate-900 leading-tight">
+              Hội thoại bán hàng
+            </h1>
+            <p className="mt-0.5 text-xs text-emerald-700 font-semibold">
+              Nguyễn Vy · Nhân viên trực ca (Bản Prototype v2 Cải tiến)
+            </p>
+          </header>
 
-        {/* 3 Tab Nghiệp vụ: Cần trả lời, Chờ khách, Tạm hoãn (KHÔNG BAO GIỜ BỊ RỚT DÒNG) */}
-        <div className="border-b border-slate-200 bg-white">
-          <div className="grid grid-cols-3">
+          {/* 3 Tab Nghiệp vụ: Cần trả lời, Chờ khách, Tạm hoãn */}
+          <nav aria-label="Trạng thái hội thoại" className="flex border-b border-slate-200 px-2 pt-2 bg-white">
             {[
-              {
-                id: "Cần trả lời",
-                label: "Cần trả lời",
-                count: conversationCounts.needsReply,
-                badgeInactive: "bg-rose-100 text-rose-700",
-              },
-              {
-                id: "Chờ khách",
-                label: "Chờ khách",
-                count: conversationCounts.waiting,
-                badgeInactive: "bg-slate-100 text-slate-600",
-              },
-              {
-                id: "Tạm hoãn",
-                label: "Tạm hoãn",
-                count: conversationCounts.snoozed,
-                badgeInactive: "bg-amber-100 text-amber-800",
-              },
-            ].map((tab) => {
-              const isActive = activeNav === tab.id
+              { id: "Cần trả lời", label: "Cần trả lời", count: conversationCounts.needsReply },
+              { id: "Chờ khách", label: "Chờ khách", count: conversationCounts.waiting },
+              { id: "Tạm hoãn", label: "Tạm hoãn", count: conversationCounts.snoozed },
+            ].map((item) => {
+              const isActive = activeNav === item.id
               return (
                 <button
-                  key={tab.id}
+                  key={item.id}
                   type="button"
                   onClick={() => {
-                    setActiveNav(tab.id)
+                    setActiveNav(item.id)
                     setMoreMenuOpen(false)
                     setSnoozeMenuOpen(false)
                   }}
-                  className={`relative flex h-11 items-center justify-center gap-1 px-1 text-xs font-semibold whitespace-nowrap transition-colors ${
+                  className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 py-3 text-xs font-semibold whitespace-nowrap transition-colors ${
                     isActive
-                      ? "text-blue-600 font-bold"
-                      : "text-slate-500 hover:text-slate-800"
+                      ? "border-blue-600 text-blue-600 font-bold"
+                      : "border-transparent text-slate-500 hover:text-slate-800"
                   }`}
                 >
-                  <span className="whitespace-nowrap">{tab.label}</span>
+                  <span className="whitespace-nowrap">{item.label}</span>
                   <span
-                    className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold shrink-0 ${
-                      isActive ? "bg-blue-600 text-white" : tab.badgeInactive
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                      isActive ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700"
                     }`}
                   >
-                    {tab.count}
+                    {item.count}
                   </span>
-                  {isActive && (
-                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-blue-600 rounded-full" />
-                  )}
                 </button>
               )
             })}
-          </div>
-        </div>
+          </nav>
 
-        {/* Thanh Tìm kiếm */}
-        <div className="p-2.5 border-b border-slate-100">
-          <div className="relative flex items-center">
-            <svg
-              className="absolute left-3 size-3.5 text-slate-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm theo tên khách, sản phẩm..."
-              className="h-8.5 w-full rounded-lg bg-slate-100 pl-8.5 pr-3 text-xs text-slate-800 outline-none transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 border border-transparent"
-            />
-          </div>
-        </div>
-
-        {/* Danh sách thẻ hội thoại (V2: Có viền cam nổi bật & icon đồng hồ báo thức khi hết hạn) */}
-        <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
-          {visibleChats.length === 0 ? (
-            <div className="flex h-48 flex-col items-center justify-center text-center text-slate-400">
-              <span className="text-2xl mb-1">📭</span>
-              <p className="text-xs">Không có hội thoại nào</p>
+          {/* Ô Tìm kiếm */}
+          <div className="border-b border-slate-200 p-3">
+            <div className="relative flex items-center">
+              <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <circle cx="10.5" cy="10.5" r="6" />
+                  <path d="m15 15 4 4" />
+                </svg>
+              </div>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Tìm kiếm khách hàng..."
+                className="h-10 w-full rounded-lg border border-slate-300 bg-slate-50/70 pl-9 pr-3 text-xs text-slate-800 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:bg-white transition-all"
+              />
             </div>
-          ) : (
-            visibleChats.map((chat: Chat) => {
+          </div>
+
+          {/* Dòng định hướng nghiệp vụ IA */}
+          <p className="px-4 pt-3 text-xs text-slate-500">
+            {activeStatus === "waiting"
+              ? "Khách cần phản hồi tiếp"
+              : activeStatus === "snoozed"
+                ? "Shop còn cam kết · Đang hẹn giờ tra cứu"
+                : "Shop cần xử lý tiếp · Ca đến hạn được ưu tiên"}
+          </p>
+          <div className="flex items-center justify-between px-4 py-2">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              {activeNav}
+            </div>
+            <div className="text-xs text-slate-400">
+              {visibleChats.length} hội thoại
+            </div>
+          </div>
+
+          {/* Danh sách thẻ hội thoại (V2: Có viền cam nổi bật & icon đồng hồ báo thức khi hết hạn) */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-2 py-1">
+            {visibleChats.map((chat) => {
               const index = chats.indexOf(chat)
-              const isActive = activeChat === index
+              const active = activeChat === index
               const isReturned = Boolean(chat.returnedNote)
 
               return (
-                <div
-                  key={chat.id}
+                <button
+                  type="button"
+                  key={chat.name}
                   onClick={() => {
                     setActiveChat(index)
-                    setChats((prev: Chat[]) =>
-                      prev.map((c: Chat, i: number) =>
-                        i === index ? { ...c, unread: false } : c,
+                    setChats((current) =>
+                      current.map((item, itemIndex) =>
+                        itemIndex === index ? { ...item, unread: false } : item,
                       ),
                     )
                   }}
-                  className={`group relative flex cursor-pointer items-start gap-3 p-3 transition-colors ${
+                  className={`mb-1.5 w-full rounded-xl p-3 text-left transition-colors border ${
+                    // V2 CẢI TIẾN: Viền cam đậm nổi bật + nền vàng/cam khi hết hạn tạm hoãn quay về
                     isReturned
-                      ? "bg-amber-50/70 border-l-[3px] border-l-amber-500"
-                      : isActive
-                        ? "bg-blue-50/70 border-l-[3px] border-l-blue-600"
-                        : "hover:bg-slate-50 border-l-[3px] border-l-transparent"
+                      ? "border-2 border-amber-500 bg-amber-50 shadow-sm ring-1 ring-amber-300"
+                      : active
+                        ? "border-blue-600 bg-blue-50/70 border-l-[3px] shadow-2xs"
+                        : "border-transparent hover:bg-slate-50 border-l-[3px]"
                   }`}
                 >
-                  {/* Avatar */}
-                  <div className="relative shrink-0 mt-0.5">
-                    <img
-                      src={chat.avatar}
-                      alt={chat.name}
-                      className={`size-10 rounded-full object-cover ring-1 ${
-                        isReturned ? "ring-2 ring-amber-500" : "ring-slate-200"
-                      }`}
-                    />
-                    <span
-                      className="absolute -bottom-0.5 -right-0.5 grid size-3.5 place-items-center rounded-full bg-[#0084FF] text-white"
-                      title="Facebook Messenger"
-                    >
-                      <svg className="size-2 fill-current" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.14 2 11.25c0 2.91 1.45 5.51 3.73 7.15V22l3.41-1.87c.92.25 1.89.39 2.86.39 5.52 0 10-4.14 10-9.25S17.52 2 12 2zm1.06 12.44l-2.61-2.79-5.1 2.79 5.61-5.96 2.67 2.79 5.04-2.79-5.61 5.96z" />
-                      </svg>
-                    </span>
-                  </div>
-
-                  {/* Nội dung tóm tắt */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="flex items-center gap-1.5 truncate">
-                        {isReturned && (
+                  <div className="flex gap-3">
+                    <div className="relative shrink-0">
+                      <img
+                        src={chat.avatar}
+                        alt={chat.name}
+                        className={`size-10 rounded-full object-cover ring-1 ${
+                          isReturned ? "ring-2 ring-amber-500" : "ring-slate-200"
+                        }`}
+                      />
+                      <span
+                        className="absolute -bottom-0.5 -right-0.5 grid size-3.5 place-items-center rounded-full bg-[#0084FF] text-white"
+                        title="Facebook Messenger"
+                      >
+                        <svg className="size-2 fill-current" viewBox="0 0 24 24">
+                          <path d="M12 2C6.48 2 2 6.14 2 11.25c0 2.91 1.45 5.51 3.73 7.15V22l3.41-1.87c.92.25 1.89.39 2.86.39 5.52 0 10-4.14 10-9.25S17.52 2 12 2zm1.06 12.44l-2.61-2.79-5.1 2.79 5.61-5.96 2.67 2.79 5.04-2.79-5.61 5.96z" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-1.5 truncate">
+                          {/* V2: Icon đồng hồ báo thức ⏰ trên thẻ danh sách */}
+                          {isReturned && (
+                            <span
+                              className="inline-flex size-4 items-center justify-center rounded-full bg-amber-500 text-white text-[10px]"
+                              title="Hết hạn tạm hoãn"
+                            >
+                              ⏰
+                            </span>
+                          )}
                           <span
-                            className="inline-flex size-4 items-center justify-center rounded-full bg-amber-500 text-white text-[10px]"
-                            title="Hết hạn tạm hoãn"
+                            className={`truncate text-sm ${
+                              isReturned
+                                ? "font-bold text-amber-950"
+                                : chat.unread
+                                  ? "font-bold text-slate-900"
+                                  : "font-semibold text-slate-800"
+                            }`}
                           >
-                            ⏰
+                            {chat.name}
                           </span>
-                        )}
-                        <span
-                          className={`truncate text-sm ${
-                            isReturned
-                              ? "font-bold text-amber-950"
-                              : chat.unread
-                                ? "font-bold text-slate-900"
-                                : "font-semibold text-slate-800"
-                          }`}
-                        >
-                          {chat.name}
+                        </div>
+                        <span className="shrink-0 text-[11px] text-slate-400">
+                          {chat.time}
                         </span>
                       </div>
-                      <span className="shrink-0 text-[11px] text-slate-400">
-                        {chat.time}
-                      </span>
-                    </div>
-
-                    <p
-                      className={`mt-0.5 line-clamp-1 text-xs leading-normal ${
-                        isReturned
-                          ? "font-semibold text-amber-800"
-                          : chat.unread
-                            ? "font-medium text-slate-900"
-                            : "text-slate-500"
-                      }`}
-                    >
-                      {isReturned ? `📌 ${chat.returnedNote}` : chat.snippet}
-                    </p>
-
-                    <div className="mt-1.5 flex items-center justify-between gap-1">
-                      <span className="truncate rounded bg-slate-100 px-1.5 py-0.5 text-[10.5px] font-medium text-slate-600">
-                        {chat.productTag || "Áo/Váy nữ"}
-                      </span>
-
-                      {isReturned ? (
-                        <span className="inline-flex items-center rounded-full bg-amber-600 px-2 py-0.2 text-[10px] font-bold text-white">
-                          Ưu tiên số 1
+                      <div
+                        className={`mt-1 truncate text-xs ${
+                          isReturned
+                            ? "font-bold text-amber-800"
+                            : chat.unread
+                              ? "font-medium text-slate-900"
+                              : "text-slate-500"
+                        }`}
+                      >
+                        {isReturned ? `📌 ${chat.returnedNote}` : chat.snippet}
+                      </div>
+                      <div className="mt-2 flex items-center justify-between gap-1">
+                        <span className="truncate rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+                          {chat.productTag || "Áo/Váy nữ"}
                         </span>
-                      ) : chat.unread ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.2 text-[10px] font-bold text-white">
-                          <span className="size-1 rounded-full bg-white animate-pulse" />
-                          Đang đợi {chat.wait}
-                        </span>
-                      ) : (
-                        <span className="text-[11px] text-slate-400">
-                          {chat.status === "snoozed"
-                            ? `Còn ${remaining(chat)}`
-                            : chat.status === "waiting"
-                              ? "Chờ khách rep"
-                              : `Đang đợi ${chat.wait}`}
-                        </span>
-                      )}
+                        {isReturned ? (
+                          <span className="rounded-full bg-amber-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
+                            Ưu tiên số 1
+                          </span>
+                        ) : chat.unread ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="size-1.5 rounded-full bg-rose-500 animate-pulse" />
+                            <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
+                              Đang đợi {chat.wait}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                            {chat.status === "waiting"
+                              ? "Đang chờ khách"
+                              : chat.status === "snoozed"
+                                ? `Còn ${remaining(chat)}`
+                                : `Đang đợi ${chat.wait}`}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )
-            })
-          )}
-        </div>
-      </aside>
-
-      {/* ===================== CỘT PHẢI: KHUNG CHAT ===================== */}
-      <main className="flex min-h-0 flex-1 flex-col bg-white">
-        {/* Header khung chat (56px) */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 px-6 bg-white">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <img
-                src={customer?.avatar}
-                alt={customer?.name}
-                className="size-9 rounded-full object-cover ring-1 ring-slate-200"
-              />
-              <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-1.5 ring-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-slate-900 leading-tight">
-                  {customer?.name}
-                </h2>
-                <span className="rounded-full bg-slate-100 px-2 py-0.2 text-[10px] font-semibold text-slate-600">
-                  {customer?.status === "needsReply"
-                    ? "Cần trả lời"
-                    : customer?.status === "waiting"
-                      ? "Chờ khách"
-                      : "Đang tạm hoãn"}
-                </span>
-                {customer?.returnedNote && (
-                  <span className="rounded-full bg-amber-500 px-2 py-0.2 text-[10px] font-bold text-white">
-                    ⏰ Hết hạn tra kho
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-500">
-                Quan tâm: <span className="font-semibold text-slate-700">{customer?.productTag}</span> ({customer?.orderPrice})
-              </p>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => {
-                  if (customer?.status === "snoozed") {
-                    setSnoozeMenuOpen((v) => !v)
-                    setMoreMenuOpen(false)
-                  } else {
-                    setSnoozeDelay("3 phút")
-                    setSnoozeNote("")
-                    setSnoozeOpen(true)
-                  }
-                }}
-                className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                  customer?.status === "snoozed"
-                    ? "bg-amber-600 text-white hover:bg-amber-700"
-                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                <svg
-                  className="size-3.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M10 15V9M14 15V9" />
-                </svg>
-                <span>
-                  {customer?.status === "snoozed"
-                    ? `Đang hoãn · ${remaining(customer)}`
-                    : "Tạm hoãn"}
-                </span>
-              </button>
-
-              {snoozeMenuOpen && customer?.status === "snoozed" && (
-                <div className="absolute right-0 top-full z-30 mt-1 w-44 rounded-xl border border-slate-200 bg-white p-1 shadow-lg text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setChats((current: Chat[]) =>
-                        current.map((chat: Chat, idx: number) =>
-                          idx === activeChat
-                            ? {
-                                ...chat,
-                                status: "needsReply",
-                                snoozeDelay: undefined,
-                                snoozeUntil: undefined,
-                                returnedNote: undefined,
-                                updatedAt: Date.now(),
-                              }
-                            : chat,
-                        ),
-                      )
-                      setActiveNav("Cần trả lời")
-                      setSnoozeMenuOpen(false)
-                    }}
-                    className="w-full rounded-lg px-3 py-2 text-left font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    Mở lại trước hạn
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      triggerExpireSnoozeImmediately()
-                      setSnoozeMenuOpen(false)
-                    }}
-                    className="w-full rounded-lg px-3 py-2 text-left font-semibold text-amber-700 hover:bg-amber-50"
-                  >
-                    ⚡ Hết giờ ngay
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => {
-                  setMoreMenuOpen((v) => !v)
-                  setSnoozeMenuOpen(false)
-                }}
-                className="grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
-                title="Tùy chọn khác"
-              >
-                <svg className="size-4" fill="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="5" r="1.5" />
-                  <circle cx="12" cy="12" r="1.5" />
-                  <circle cx="12" cy="19" r="1.5" />
-                </svg>
-              </button>
-
-              {moreMenuOpen && (
-                <div className="absolute right-0 top-full z-30 mt-1 w-52 rounded-xl border border-slate-200 bg-white p-1 shadow-xl text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setChats((current: Chat[]) =>
-                        current.map((chat: Chat, idx: number) =>
-                          idx === activeChat ? { ...chat, unread: true } : chat,
-                        ),
-                      )
-                      setMoreMenuOpen(false)
-                    }}
-                    className="w-full rounded-lg px-3 py-2 text-left text-slate-700 hover:bg-slate-50"
-                  >
-                    Đánh dấu chưa đọc
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleCustomerReply(activeChat)}
-                    className="w-full rounded-lg px-3 py-2 text-left text-blue-700 hover:bg-blue-50 font-medium"
-                  >
-                    💬 Giả lập: Khách nhắn thêm
-                  </button>
-                  <div className="my-1 border-t border-slate-100" />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSimulateOffline((v) => !v)
-                      setMoreMenuOpen(false)
-                    }}
-                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-amber-700 hover:bg-amber-50"
-                  >
-                    <span>Lỗi mất mạng khi gửi</span>
-                    <span
-                      className={`size-2 rounded-full ${
-                        simulateOffline ? "bg-amber-500" : "bg-slate-300"
-                      }`}
-                    />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Khung Tin nhắn cuộn: Căn chỉnh max-w-4xl cân đối, không bị loãng trên màn hình rộng */}
-        <div className="flex-1 overflow-y-auto bg-slate-50/60 px-6 py-4">
-          <div className="mx-auto flex max-w-4xl min-h-full flex-col justify-end space-y-3.5">
-            {/* Banner Nhắc việc khi hết hạn tạm hoãn */}
-            {customer?.returnedNote && (
-              <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 shadow-xs">
-                <span className="font-bold text-amber-800">
-                  ⏰ Hệ thống nhắc việc tự động: Đã hết thời gian hẹn giờ tra kho!
-                </span>
-                <p className="mt-0.5 text-slate-700">
-                  Ghi chú kiểm kho của bạn:{" "}
-                  <span className="font-bold text-slate-900">
-                    "{customer.returnedNote}"
-                  </span>
-                </p>
-              </div>
-            )}
-
-            {/* Mốc thời gian */}
-            <div className="flex items-center gap-3 my-2">
-              <div className="h-px flex-1 bg-slate-200" />
-              <span className="text-xs font-medium text-slate-400">Hôm nay</span>
-              <div className="h-px flex-1 bg-slate-200" />
-            </div>
-
-            {/* Lịch sử tin nhắn */}
-            {histories[activeChat]?.map((entry: HistoryMessage, idx: number) => {
-              const isShop = entry.from === "shop"
-              return (
-                <div
-                  key={idx}
-                  className={`flex items-end gap-2.5 ${
-                    isShop ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  {!isShop && (
-                    <img
-                      src={customer?.avatar}
-                      alt={customer?.name}
-                      className="size-7 rounded-full object-cover ring-1 ring-slate-200 mb-0.5"
-                    />
-                  )}
-                  <div
-                    className={`group relative flex flex-col ${
-                      isShop ? "items-end" : "items-start"
-                    }`}
-                  >
-                    <div
-                      className={`max-w-[480px] px-4 py-2.5 text-[13px] leading-relaxed shadow-2xs ${
-                        isShop
-                          ? "rounded-2xl rounded-tr-xs bg-[#0084FF] text-white"
-                          : "rounded-2xl rounded-tl-xs bg-white text-slate-800 border border-slate-200/80"
-                      }`}
-                    >
-                      {entry.image && (
-                        <img
-                          src={entry.image}
-                          alt="Ảnh đính kèm"
-                          className="mb-2 max-h-56 rounded-lg object-cover"
-                        />
-                      )}
-                      <p className="whitespace-pre-wrap break-words">{entry.text}</p>
-                    </div>
-                    <span className="mt-1 px-1 text-[11px] text-slate-400">
-                      {entry.time} · {isShop ? "Đã gửi" : customer?.name}
-                    </span>
-                  </div>
-                </div>
+                </button>
               )
             })}
-            <div ref={historyEndRef} />
           </div>
-        </div>
+        </section>
 
-        {/* Khung Nhập tin nhắn & Gợi ý trả lời nhanh (Căn giữa max-w-4xl cân đối với dòng chat) */}
-        <footer className="border-t border-slate-200 bg-white px-6 py-3">
-          <div className="mx-auto max-w-4xl space-y-2">
-            {/* Gợi ý trả lời nhanh: Dạng chip ngắn gọn */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-              <span className="text-[11px] font-semibold text-slate-400 shrink-0">
-                Gợi ý nhanh:
-              </span>
-              {quickReplies.map((item, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setMessage(item.text)}
-                  className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                >
-                  {item.label}
-                </button>
-              ))}
+        {/* ===================== CỘT PHẢI: KHUNG CHAT CHI TIẾT ===================== */}
+        <section className="relative flex min-h-0 min-w-0 flex-col bg-white">
+          {/* Header khung chat */}
+          <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-6 bg-white">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <img
+                  src={customer?.avatar}
+                  alt={customer?.name}
+                  className="size-10 rounded-full object-cover ring-1 ring-slate-200"
+                />
+                <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-1.5 ring-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-bold text-slate-900">{customer?.name}</div>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600">
+                    {customer?.status === "needsReply"
+                      ? "Cần trả lời"
+                      : customer?.status === "waiting"
+                        ? "Chờ khách"
+                        : "Đang tạm hoãn"}
+                  </span>
+                  {customer?.returnedNote && (
+                    <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white">
+                      ⏰ Hết hạn tra kho
+                    </span>
+                  )}
+                </div>
+                <div className="mt-0.5 text-xs text-slate-500">
+                  Facebook Messenger · Khách quan tâm: <span className="font-semibold text-slate-700">{customer?.productTag}</span> ({customer?.orderPrice})
+                </div>
+              </div>
             </div>
 
-            {attachment && (
-              <div className="flex items-center justify-between rounded-lg bg-slate-100 p-2 text-xs">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={attachment.url}
-                    alt="Preview"
-                    className="size-8 rounded object-cover"
-                  />
-                  <span className="font-medium text-slate-700 text-xs truncate max-w-[200px]">
-                    {attachment.name}
-                  </span>
-                </div>
+            {/* Nút hành động */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
                 <button
                   type="button"
+                  onClick={() => {
+                    if (customer?.status === "snoozed") {
+                      setSnoozeMenuOpen((open) => !open)
+                      setMoreMenuOpen(false)
+                    } else {
+                      setSnoozeDelay("3 phút")
+                      setSnoozeNote("")
+                      setSnoozeOpen(true)
+                    }
+                  }}
+                  className={`rounded-lg px-4 py-2 text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                    customer?.status === "snoozed"
+                      ? "bg-amber-600 text-white hover:bg-amber-700"
+                      : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M10 15V9M14 15V9" />
+                  </svg>
+                  <span>
+                    {customer?.status === "snoozed"
+                      ? `Đang hoãn · ${remaining(customer)}`
+                      : "Tạm hoãn"}
+                  </span>
+                </button>
+                {snoozeMenuOpen && customer?.status === "snoozed" && (
+                  <div className="absolute right-0 top-full z-30 mt-1.5 w-48 rounded-xl border border-slate-200 bg-white p-1 shadow-lg text-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChats((current) =>
+                          current.map((chat, index) =>
+                            index === activeChat
+                              ? {
+                                  ...chat,
+                                  status: "needsReply",
+                                  snoozeDelay: undefined,
+                                  snoozeUntil: undefined,
+                                  returnedNote: undefined,
+                                  updatedAt: Date.now(),
+                                }
+                              : chat,
+                          ),
+                        )
+                        setActiveNav("Cần trả lời")
+                        setSnoozeMenuOpen(false)
+                      }}
+                      className="w-full rounded-lg px-3 py-2 text-left font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600"
+                    >
+                      Mở lại trước hạn
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerExpireSnoozeImmediately()
+                        setSnoozeMenuOpen(false)
+                      }}
+                      className="w-full rounded-lg px-3 py-2 text-left font-semibold text-amber-700 hover:bg-amber-50"
+                    >
+                      ⚡ Hết giờ ngay
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMoreMenuOpen((open) => !open)
+                    setSnoozeMenuOpen(false)
+                  }}
+                  className="grid size-9 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  title="Thêm tùy chọn"
+                >
+                  <svg className="size-4" fill="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="5" r="1.5" />
+                    <circle cx="12" cy="12" r="1.5" />
+                    <circle cx="12" cy="19" r="1.5" />
+                  </svg>
+                </button>
+                {moreMenuOpen && (
+                  <div className="absolute right-0 top-full z-30 mt-1.5 w-52 rounded-xl border border-slate-200 bg-white p-1 shadow-xl text-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChats((current) =>
+                          current.map((chat, index) =>
+                            index === activeChat ? { ...chat, unread: true } : chat,
+                          ),
+                        )
+                        setMoreMenuOpen(false)
+                      }}
+                      className="w-full rounded-lg px-3 py-2 text-left font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      Đánh dấu chưa đọc
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCustomerReply(activeChat)}
+                      className="w-full rounded-lg px-3 py-2 text-left font-medium text-blue-700 hover:bg-blue-50"
+                    >
+                      💬 Giả lập: Khách nhắn thêm
+                    </button>
+                    <div className="my-1 border-t border-slate-100" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSimulateOffline((v) => !v)
+                        setMoreMenuOpen(false)
+                      }}
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-amber-700 hover:bg-amber-50"
+                    >
+                      <span>Lỗi mất mạng khi gửi</span>
+                      <span
+                        className={`size-2 rounded-full ${
+                          simulateOffline ? "bg-amber-500" : "bg-slate-300"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </header>
+
+          {/* Vùng Tin nhắn cuộn */}
+          <div aria-label="Lịch sử hội thoại" className="min-h-0 flex-1 overflow-y-auto bg-slate-50/60 px-6 py-4">
+            <div className="flex min-h-full flex-col justify-end">
+              {customer?.returnedNote && (
+                <div className="sticky top-0 z-10 mb-4 rounded-xl border-2 border-amber-400 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900 shadow-sm">
+                  <span className="font-bold">⏰ Hệ thống nhắc việc tự động:</span> Đã hết hạn tạm hoãn tra kho! Ghi chú của bạn:{" "}
+                  <span className="font-bold underline decoration-amber-400 decoration-2">'{customer.returnedNote}'</span>
+                </div>
+              )}
+              {customer?.status === "snoozed" && (
+                <div className="mb-4 rounded-xl border border-amber-200 bg-white p-3 text-xs text-slate-700 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-amber-700">
+                      ⏸ Đang tạm hoãn · Còn {remaining(customer)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={triggerExpireSnoozeImmediately}
+                      className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 hover:bg-amber-200"
+                    >
+                      ⚡ Hết giờ ngay
+                    </button>
+                  </div>
+                  <p className="mt-1 text-slate-500">
+                    {customer.snoozeNote || "Tiếp tục tư vấn khi đến hạn"}
+                  </p>
+                </div>
+              )}
+
+              <div className="mb-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-slate-200" />
+                <span className="text-[11px] text-slate-400">Hôm nay</span>
+                <div className="h-px flex-1 bg-slate-200" />
+              </div>
+
+              {/* Tin nhắn lịch sử */}
+              {histories[activeChat]?.map((entry: HistoryMessage, index: number) => {
+                const isShop = entry.from === "shop"
+                return (
+                  <div
+                    key={index}
+                    className={`mb-3 flex max-w-[80%] items-end gap-2.5 ${
+                      isShop ? "self-end" : "self-start"
+                    }`}
+                  >
+                    {!isShop && (
+                      <img
+                        src={customer?.avatar}
+                        alt={customer?.name}
+                        className="size-7 rounded-full object-cover ring-1 ring-slate-200 mb-0.5"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <div
+                        className={`max-w-[560px] whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed shadow-2xs ${
+                          isShop
+                            ? "rounded-br-xs bg-[#0084FF] text-white"
+                            : "rounded-bl-xs border border-slate-200 bg-white text-slate-800"
+                        }`}
+                      >
+                        {entry.image && (
+                          <img
+                            src={entry.image}
+                            alt="Ảnh đính kèm"
+                            className="mb-2 max-h-56 rounded-lg object-cover"
+                          />
+                        )}
+                        <p>{entry.text}</p>
+                      </div>
+                      <div
+                        className={`mt-1 text-[11px] text-slate-400 ${
+                          isShop ? "text-right" : ""
+                        }`}
+                      >
+                        {entry.time} · {isShop ? "Đã gửi" : customer?.name}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+              <div ref={historyEndRef} />
+            </div>
+          </div>
+
+          {/* Khung Nhập tin nhắn: 2 dòng textarea chuẩn Wireframe & CSKH */}
+          <footer className="shrink-0 border-t border-slate-200 bg-white px-6 py-3.5">
+            {attachment && (
+              <div className="mb-2.5 flex items-center gap-3 text-xs">
+                <img
+                  src={attachment.url}
+                  alt="Ảnh đính kèm"
+                  className="size-10 rounded-lg border border-slate-200 object-cover"
+                />
+                <span className="font-medium text-slate-700">{attachment.name}</span>
+                <button
+                  type="button"
+                  className="text-slate-400 hover:text-slate-700 underline text-xs ml-2"
                   onClick={() =>
                     setAttachments((prev) => ({ ...prev, [activeChat]: undefined }))
                   }
-                  className="text-slate-400 hover:text-slate-700 text-xs font-bold px-1"
                 >
-                  ✕
+                  Xóa ảnh
                 </button>
               </div>
             )}
 
             {sendError && (
-              <div className="flex items-center justify-between rounded-lg bg-rose-50 px-3 py-1.5 text-xs text-rose-700 border border-rose-200">
-                <span>⚠️ Chưa gửi được do sự cố kết nối. Nội dung được lưu lại.</span>
+              <div className="mb-2.5 flex items-center justify-between rounded-lg bg-rose-50 px-3 py-1.5 text-xs text-rose-700 border border-rose-200">
+                <span>⚠️ Chưa gửi được do mất kết nối mạng. Nội dung được giữ lại.</span>
                 <button
                   type="button"
+                  className="font-bold underline text-rose-700 hover:text-rose-900"
                   onClick={() => {
                     setSimulateOffline(false)
                     setSendError(false)
-                    document.querySelector<HTMLFormElement>("#form-chat-v2")?.requestSubmit()
+                    handleSendMessage()
                   }}
-                  className="rounded bg-rose-600 px-2 py-0.5 text-xs font-bold text-white hover:bg-rose-700"
                 >
                   Thử lại
                 </button>
               </div>
             )}
 
-            {/* Form soạn tin */}
-            <form
-              id="form-chat-v2"
-              onSubmit={handleSendMessage}
-              className="flex items-center gap-2"
-            >
-              <div className="flex flex-1 items-center rounded-2xl border border-slate-200 bg-slate-50/80 px-3 py-1.5 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-                <label
-                  className="flex size-7.5 cursor-pointer items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 transition-colors shrink-0 mr-1"
-                  title="Gửi ảnh mẫu"
-                >
-                  <svg
-                    className="size-4.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (!file) return
-                      const reader = new FileReader()
-                      reader.onload = () => {
-                        setAttachments((prev) => ({
-                          ...prev,
-                          [activeChat]: {
-                            name: file.name,
-                            url: String(reader.result),
-                          },
-                        }))
-                      }
-                      reader.readAsDataURL(file)
-                      e.target.value = ""
-                    }}
-                  />
-                </label>
-
-                <input
+            <form onSubmit={handleSendMessage} className="flex w-full items-end gap-3">
+              <div className="flex-1 rounded-xl border border-slate-300 bg-white p-3 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Nhập tin nhắn tư vấn size, giá, màu sắc... (Enter để gửi)"
-                  className="w-full bg-transparent px-2 text-xs text-slate-800 outline-none placeholder:text-slate-400"
+                  placeholder="Soạn nội dung tư vấn báo giá, size, màu sắc..."
+                  rows={2}
+                  className="block w-full resize-none bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      handleSendMessage()
+                    }
+                  }}
                 />
+                <div className="mt-2 flex items-center justify-between gap-3 border-t border-slate-100 pt-2">
+                  <label className="flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+                    <svg className="size-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path d="m9 12 5.5-5.5a3 3 0 0 1 4.25 4.25l-7.5 7.5a5 5 0 0 1-7.07-7.07l7-7" />
+                    </svg>
+                    <span>Gửi ảnh mẫu sản phẩm</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        const reader = new FileReader()
+                        reader.onload = () => {
+                          setAttachments((prev) => ({
+                            ...prev,
+                            [activeChat]: {
+                              name: file.name,
+                              url: String(reader.result),
+                            },
+                          }))
+                        }
+                        reader.readAsDataURL(file)
+                        e.target.value = ""
+                      }}
+                    />
+                  </label>
+                  <span className="text-[11px] text-slate-400">
+                    Nhấn Enter để gửi · Shift+Enter để xuống dòng
+                  </span>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={!message.trim() && !attachment}
-                className="flex size-9 items-center justify-center rounded-full bg-[#0084FF] text-white shadow-xs transition-all hover:bg-blue-600 active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed shrink-0"
-                title="Gửi tin nhắn"
+                className="flex h-11 items-center gap-2 rounded-xl bg-[#0084FF] px-6 text-sm font-bold text-white shadow-xs hover:bg-blue-600 active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all"
               >
-                <svg
-                  className="size-4 ml-0.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
+                <span>Gửi</span>
+                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path d="m4 4 17 8-17 8 3-8z" />
+                  <path d="M7 12h14" />
                 </svg>
               </button>
             </form>
-          </div>
-        </footer>
-      </main>
+          </footer>
+        </section>
+      </section>
 
       {/* ===================== MODAL TẠM HOÃN (V2: MẶC ĐỊNH 3P + AUTO FOCUS + ENTER) ===================== */}
       {snoozeOpen && (
@@ -926,7 +854,7 @@ export default function PrototypeV2View() {
                     Tạm hoãn tư vấn (Hẹn giờ)
                   </h3>
                   <span className="rounded bg-emerald-100 px-1.5 py-0.2 text-[10px] font-bold text-emerald-800">
-                    V2
+                    V2 Cải tiến
                   </span>
                 </div>
                 <p className="text-xs text-slate-500">
@@ -953,7 +881,7 @@ export default function PrototypeV2View() {
                       key={option}
                       type="button"
                       onClick={() => setSnoozeDelay(option)}
-                      className={`rounded-xl border py-2 font-bold transition-all ${
+                      className={`rounded-xl border py-2.5 font-bold transition-all ${
                         snoozeDelay === option
                           ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-100"
                           : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
