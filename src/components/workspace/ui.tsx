@@ -39,9 +39,9 @@ export function Chip({
     <button
       type="button"
       {...rest}
-      className={`inline-flex h-7 shrink-0 items-center rounded-full border px-2.5 type-caption transition-colors ${
+      className={`inline-flex h-6.5 shrink-0 items-center rounded-lg border px-2.5 type-caption transition-colors ${
         active
-          ? "border-slate-900 bg-slate-900 text-white"
+          ? "border-blue-600 bg-blue-600 text-white font-medium"
           : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
       }`}
     >

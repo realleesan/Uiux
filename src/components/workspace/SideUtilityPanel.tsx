@@ -1,9 +1,10 @@
 import React from "react"
-import { ProductItem } from "../../types/chat"
-import { ClockIcon, ReceiptIcon } from "./icons"
+import { Chat, ProductItem } from "../../types/chat"
+import { ClockIcon, ReceiptIcon, SearchIcon, UserIcon } from "./icons"
 import { Button, Chip, Field, inputClass, Tabs, Tag } from "./ui"
 
 type SideUtilityPanelProps = {
+  customer?: Chat
   utilityTab: "inventory" | "pos" | "snooze"
   onSelectTab: (tab: "inventory" | "pos" | "snooze") => void
   products: ProductItem[]
@@ -39,6 +40,7 @@ type SideUtilityPanelProps = {
 }
 
 export default function SideUtilityPanel({
+  customer,
   utilityTab,
   onSelectTab,
   products,
@@ -93,44 +95,84 @@ export default function SideUtilityPanel({
 
       {/* ===================== TAB 1: TỒN KHO & BẢNG SIZE ===================== */}
       {utilityTab === "inventory" && (
-        <div className="min-h-0 flex-1 overflow-y-auto p-4 space-y-3.5">
-          {/* Ô tìm kiếm mã sản phẩm */}
-          <Field label="Tra cứu mã sản phẩm:">
-            <input
-              value={productSearch}
-              onChange={(e) => onProductSearchChange(e.target.value)}
-              placeholder="VD01, SM03, QJ02..."
-              className={inputClass}
-            />
-          </Field>
+        <div className="min-h-0 flex-1 overflow-y-auto p-3.5 space-y-3">
+          {/* Thẻ Hồ sơ tư vấn khách hàng (CRM Consultation Context) */}
+          {customer && (
+            <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-2.5 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <UserIcon className="size-3.5 text-blue-600" />
+                  <span className="type-heading text-slate-900">{customer.name}</span>
+                </div>
+                {customer.customerPhone && (
+                  <button
+                    type="button"
+                    onClick={onAutoFillPOS}
+                    className="rounded border border-blue-200 bg-white px-2 py-0.5 type-caption font-medium text-blue-700 hover:bg-blue-50 transition-colors"
+                  >
+                    Nhập vào POS ➔
+                  </button>
+                )}
+              </div>
 
-          {/* Gợi ý mã SP */}
-          <div className="flex flex-wrap gap-1.5">
-            {products.map((p) => (
-              <Chip
-                key={p.code}
-                active={selectedProduct.code === p.code}
-                onClick={() => onSelectProduct(p)}
-              >
-                {p.code}
-              </Chip>
-            ))}
+              {customer.customerHeightWeight ? (
+                <div className="flex items-center justify-between rounded-lg bg-white px-2.5 py-1.5 border border-blue-100/80 type-caption">
+                  <span className="text-slate-600">
+                    <strong className="text-slate-900 font-semibold">Số đo:</strong> {customer.customerHeightWeight}
+                  </span>
+                  <Tag tone="emerald">Gợi ý: Size M</Tag>
+                </div>
+              ) : (
+                <p className="type-caption text-slate-500">Chưa có số đo cụ thể</p>
+              )}
+            </div>
+          )}
+
+          {/* Ô tìm kiếm mã sản phẩm */}
+          <div className="space-y-1.5">
+            <div className="relative flex items-center">
+              <span className="pointer-events-none absolute left-3 text-slate-400">
+                <SearchIcon className="size-4" />
+              </span>
+              <input
+                value={productSearch}
+                onChange={(e) => onProductSearchChange(e.target.value)}
+                placeholder="Tra cứu mã: VD01, SM03, QJ02..."
+                className="h-8.5 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-8.5 pr-3 type-body text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:bg-white transition-colors"
+              />
+            </div>
+
+            {/* Gợi ý mã SP */}
+            <div className="flex flex-wrap gap-1.5">
+              {products.map((p) => (
+                <Chip
+                  key={p.code}
+                  active={selectedProduct.code === p.code}
+                  onClick={() => onSelectProduct(p)}
+                >
+                  {p.code}
+                </Chip>
+              ))}
+            </div>
           </div>
 
           {/* Chi tiết sản phẩm */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 space-y-3">
+          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2.5">
             <div className="flex gap-2.5">
               <img
                 src={selectedProduct.image}
                 alt={selectedProduct.name}
-                className="size-14 rounded-lg object-cover border border-slate-200"
+                className="size-13 rounded-lg object-cover border border-slate-200 shrink-0"
               />
               <div className="min-w-0 flex-1">
-                <span className="type-caption font-semibold text-blue-700">[{selectedProduct.code}]</span>
-                <h4 className="type-heading text-slate-900 leading-snug line-clamp-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="type-caption font-semibold text-blue-700">[{selectedProduct.code}]</span>
+                  <span className="type-caption text-slate-500">{selectedProduct.category}</span>
+                </div>
+                <h4 className="type-heading text-slate-900 leading-snug line-clamp-1">
                   {selectedProduct.name}
                 </h4>
-                <p className="mt-0.5 type-heading text-slate-900">{selectedProduct.priceFormatted}</p>
+                <p className="type-heading text-slate-900 font-semibold">{selectedProduct.priceFormatted}</p>
               </div>
             </div>
 
@@ -138,25 +180,29 @@ export default function SideUtilityPanel({
             <div>
               <div className="flex items-center justify-between type-caption text-slate-400 uppercase font-semibold mb-1 px-1">
                 <span>Phân loại</span>
-                <span>Tồn kho</span>
+                <span>Tồn kho & Thao tác</span>
               </div>
-              <div className="divide-y divide-slate-200 border border-slate-200 rounded-lg bg-white overflow-hidden type-body">
+              <div className="divide-y divide-slate-100 border border-slate-200 rounded-lg bg-white overflow-hidden type-body">
                 {selectedProduct.variants.map((v, i) => (
-                  <div key={i} className="flex items-center justify-between px-3 py-1.5">
-                    <span className="text-slate-800">
+                  <div key={i} className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50/60 transition-colors">
+                    <span className="text-slate-800 text-[13px]">
                       {v.color} · Size {v.size}
                     </span>
                     <div className="flex items-center gap-2">
                       <Tag tone={v.stock > 5 ? "emerald" : v.stock > 0 ? "amber" : "rose"}>
-                        {v.stock > 0 ? `Còn ${v.stock}` : "Hết hàng"}
+                        {v.stock > 0 ? `Còn ${v.stock}` : "Hết"}
                       </Tag>
-                      <button
-                        type="button"
-                        onClick={() => onInsertInventoryInfo(selectedProduct, `${v.color} - Size ${v.size}`, v.stock)}
-                        className="type-caption font-semibold text-blue-600 hover:text-blue-800"
-                      >
-                        Chèn
-                      </button>
+                      {v.stock > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => onInsertInventoryInfo(selectedProduct, `${v.color} - Size ${v.size}`, v.stock)}
+                          className="rounded border border-blue-200 bg-blue-50/60 px-2 py-0.5 type-caption font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                        >
+                          Tư vấn
+                        </button>
+                      ) : (
+                        <span className="type-caption text-slate-400 px-1 select-none">—</span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -165,8 +211,9 @@ export default function SideUtilityPanel({
 
             <Button
               variant="primary"
-              size="md"
+              size="sm"
               block
+              icon={<ReceiptIcon className="size-3.5" />}
               onClick={() => onChooseProductForOrder(selectedProduct.code)}
             >
               Chọn sản phẩm này tạo đơn

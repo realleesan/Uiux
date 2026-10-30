@@ -115,3 +115,23 @@ export const MoreVerticalIcon = (p: IconProps) => (
   </Svg>
 )
 
+export const CheckCheckIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M18 6 7 17l-5-5" />
+    <path d="m22 10-7.5 7.5L13 16" />
+  </Svg>
+)
+
+export const UserIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </Svg>
+)
+
+export const SparklesIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z" />
+  </Svg>
+)
+

@@ -391,7 +391,7 @@ export default function PrototypeV2View() {
       <div
         className="grid h-[calc(100%-48px)] w-full overflow-hidden"
         style={{
-          gridTemplateColumns: showRightPanel ? "300px minmax(400px, 1fr) 340px" : "300px minmax(500px, 1fr)",
+          gridTemplateColumns: showRightPanel ? "320px minmax(420px, 1fr) 340px" : "320px minmax(500px, 1fr)",
         }}
       >
         {/* CỘT 1: Danh sách hội thoại */}
@@ -460,6 +460,7 @@ export default function PrototypeV2View() {
         {/* CỘT 3: Tiện ích Bán hàng & Tồn kho */}
         {showRightPanel && (
           <SideUtilityPanel
+            customer={currentCustomer}
             utilityTab={utilityTab}
             onSelectTab={setUtilityTab}
             products={sampleProducts}

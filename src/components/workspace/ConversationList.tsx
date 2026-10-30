@@ -72,8 +72,8 @@ export default function ConversationList({
           />
         </div>
 
-        {/* Thanh lọc Tag Thẻ nghiệp vụ */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+        {/* Thanh lọc Tag Thẻ nghiệp vụ: flex-wrap đảm bảo không bị khuất chữ */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
           <Chip active={selectedTag === "all"} onClick={() => onSelectTag("all")}>
             Tất cả
           </Chip>

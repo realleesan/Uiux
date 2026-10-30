@@ -1,6 +1,6 @@
 import React, { FormEvent, RefObject, useState } from "react"
 import { Chat, ChatTag, HistoryMessage, QuickReply } from "../../types/chat"
-import { ClockIcon, MoreVerticalIcon, PaperclipIcon, SendIcon, TagIcon } from "./icons"
+import { CheckCheckIcon, ClockIcon, MoreVerticalIcon, PaperclipIcon, SendIcon, TagIcon } from "./icons"
 import { Avatar, Button, Chip, IconButton, Tag } from "./ui"
 
 type ChatAreaProps = {
@@ -75,7 +75,7 @@ export default function ChatArea({
               </span>
             </div>
             <p className="type-caption text-slate-500">
-              Facebook Messenger {customer?.customerHeightWeight ? `· ${customer.customerHeightWeight}` : ""}
+              Facebook Messenger · Phản hồi trong vài phút
             </p>
           </div>
         </div>
@@ -249,14 +249,14 @@ export default function ChatArea({
           return (
             <div
               key={index}
-              className={`flex max-w-[80%] items-end gap-2.5 ${isShop ? "ml-auto flex-row-reverse" : "mr-auto"}`}
+              className={`flex max-w-[68%] items-end gap-2 ${isShop ? "ml-auto flex-row-reverse" : "mr-auto"}`}
             >
               {!isShop && (
                 <Avatar src={customer?.avatar} name={customer?.name} size="sm" />
               )}
               <div className="min-w-0">
                 <div
-                  className={`whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 type-body shadow-2xs ${
+                  className={`whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 type-body leading-relaxed shadow-2xs ${
                     isShop
                       ? "rounded-br-xs bg-blue-600 text-white"
                       : "rounded-bl-xs border border-slate-200 bg-white text-slate-900"
@@ -271,9 +271,18 @@ export default function ChatArea({
                   )}
                   <p>{entry.text}</p>
                 </div>
-                <div className={`mt-1 type-caption text-slate-400 ${isShop ? "text-right" : ""}`}>
-                  {entry.time} · {isShop ? "Đã gửi" : customer?.name}
-                </div>
+
+                {/* Thời gian hiển thị tinh tế: không lặp text vô nghĩa */}
+                {isShop ? (
+                  <div className="mt-1 flex items-center justify-end gap-1 pr-1 type-caption text-slate-400 select-none">
+                    <span>{entry.time}</span>
+                    <CheckCheckIcon className="size-3 text-blue-500" />
+                  </div>
+                ) : (
+                  <div className="mt-1 pl-1 type-caption text-slate-400 select-none">
+                    <span>{entry.time}</span>
+                  </div>
+                )}
               </div>
             </div>
           )
@@ -281,11 +290,11 @@ export default function ChatArea({
         <div ref={historyEndRef} />
       </div>
 
-      {/* Footer Soạn thảo & Tin mẫu */}
-      <footer className="shrink-0 border-t border-slate-200 bg-white px-5 py-3 space-y-2.5">
-        {/* Thanh Tin mẫu */}
+      {/* Footer Soạn thảo & Mẫu trả lời nhanh */}
+      <footer className="shrink-0 border-t border-slate-200 bg-white px-4 py-2.5 space-y-2">
+        {/* Thanh Mẫu trả lời nhanh: nhỏ gọn, tinh tế */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-          <span className="shrink-0 type-caption text-slate-400 mr-0.5 select-none">
+          <span className="shrink-0 type-caption text-slate-400 mr-0.5 select-none font-medium">
             Mẫu nhanh:
           </span>
           {quickReplies.map((qr) => (
@@ -296,22 +305,16 @@ export default function ChatArea({
               {qr.title}
             </Chip>
           ))}
-
-          {customer?.customerPhone && (
-            <Button variant="ghost" size="sm" onClick={onAutoFillPOS}>
-              Điền SĐT vào đơn POS
-            </Button>
-          )}
         </div>
 
         {/* Ảnh đính kèm nếu có */}
         {attachment && (
-          <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2 type-caption">
-            <img src={attachment.url} alt="Ảnh đính kèm" className="size-10 rounded-lg object-cover" />
-            <span className="type-label text-slate-700">{attachment.name}</span>
+          <div className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50 p-1.5 type-caption">
+            <img src={attachment.url} alt="Ảnh đính kèm" className="size-8 rounded-md object-cover" />
+            <span className="type-label text-slate-700 truncate max-w-xs">{attachment.name}</span>
             <button
               type="button"
-              className="text-slate-400 hover:text-rose-600 underline ml-auto"
+              className="text-slate-400 hover:text-rose-600 underline ml-auto text-xs"
               onClick={onRemoveAttachment}
             >
               Xóa ảnh
@@ -321,7 +324,7 @@ export default function ChatArea({
 
         {/* Báo lỗi mạng */}
         {sendError && (
-          <div className="flex items-center justify-between rounded-lg bg-rose-50 px-3.5 py-2 type-body text-rose-700 border border-rose-200">
+          <div className="flex items-center justify-between rounded-lg bg-rose-50 px-3 py-1.5 type-caption text-rose-700 border border-rose-200">
             <span>Không có kết nối mạng. Tin nhắn đã soạn được giữ nguyên.</span>
             <button type="button" className="font-semibold underline hover:text-rose-900" onClick={onRetrySend}>
               Thử lại
@@ -329,15 +332,15 @@ export default function ChatArea({
           </div>
         )}
 
-        {/* Khung Soạn thảo */}
-        <form onSubmit={onSendMessage} className="flex w-full items-end gap-2.5">
-          <div className="flex-1 rounded-xl border border-slate-300 bg-white p-2.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-colors">
+        {/* Khung Soạn thảo Tinh gọn */}
+        <form onSubmit={onSendMessage} className="flex items-end gap-2">
+          <div className="flex-1 rounded-xl border border-slate-300 bg-white p-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-colors">
             <textarea
               value={message}
               onChange={(e) => onMessageChange(e.target.value)}
               placeholder="Nhập tin nhắn tư vấn (nhấn Enter để gửi)..."
-              rows={2}
-              className="block w-full resize-none bg-transparent type-body text-slate-900 outline-none placeholder:text-slate-400 leading-relaxed"
+              rows={1}
+              className="block w-full resize-none bg-transparent type-body text-slate-900 outline-none placeholder:text-slate-400 leading-normal max-h-24"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault()
@@ -345,10 +348,10 @@ export default function ChatArea({
                 }
               }}
             />
-            <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-1.5">
-              <label className="flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-0.5 type-caption text-slate-600 hover:bg-slate-100 transition-colors">
+            <div className="mt-1 flex items-center justify-between border-t border-slate-100 pt-1">
+              <label className="flex cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-0.5 type-caption text-slate-500 hover:bg-slate-100 transition-colors">
                 <PaperclipIcon className="size-3.5 text-slate-500" />
-                <span>Ảnh đính kèm</span>
+                <span>Đính kèm ảnh</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -362,7 +365,7 @@ export default function ChatArea({
                   }}
                 />
               </label>
-              <span className="type-caption text-slate-400 select-none">
+              <span className="type-caption text-slate-400 select-none text-[11px]">
                 Enter để gửi · Shift+Enter xuống dòng
               </span>
             </div>
@@ -371,7 +374,7 @@ export default function ChatArea({
           <Button
             variant="primary"
             size="md"
-            icon={<SendIcon className="size-4" />}
+            icon={<SendIcon className="size-3.5" />}
             disabled={!message.trim() && !attachment}
             onClick={() => onSendMessage()}
           >
