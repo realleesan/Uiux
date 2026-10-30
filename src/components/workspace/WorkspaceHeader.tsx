@@ -56,15 +56,6 @@ export default function WorkspaceHeader({
         >
           <LogOutIcon className="size-4" />
         </IconButton>
-
-        {/* Nút thu gọn / mở cột tiện ích */}
-        <IconButton
-          label={showRightPanel ? "Đóng tiện ích" : "Mở tiện ích"}
-          active={showRightPanel}
-          onClick={onToggleRightPanel}
-        >
-          <PanelRightIcon className="size-4" />
-        </IconButton>
       </div>
     </header>
   )

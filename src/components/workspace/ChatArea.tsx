@@ -97,10 +97,15 @@ export default function ChatArea({
             <p className="type-caption text-slate-500 font-normal">Đang hoạt động</p>
           </div>
 
-          {/* Phân công tư vấn viên: Chỉ icon nhân viên gọn gàng */}
+          {/* Phân công tư vấn viên: Tư vấn bởi: [Avatar của nhân viên] */}
           <div className="ml-3 flex items-center gap-1.5 border-l border-slate-200 pl-3 type-caption text-slate-500">
-            <UserIcon className="size-3.5 text-slate-400" />
-            <span>Nguyễn Vy</span>
+            <span>Tư vấn bởi:</span>
+            <img
+              src={staffAvatar}
+              alt="Nguyễn Vy"
+              title="Nguyễn Vy (Tư vấn viên)"
+              className="size-5.5 rounded-full object-cover ring-1 ring-slate-200"
+            />
           </div>
         </div>
 
@@ -331,22 +336,22 @@ export default function ChatArea({
 
       {/* Footer Soạn thảo Tinh gọn: KHÔNG BỊ CỘM, DÙNG TIA SÉT THAY CHO / */}
       <footer className="shrink-0 border-t border-slate-200 bg-white px-4 py-2.5 relative">
-        {/* Menu gợi ý Slash Command / hoặc bấm nút tia sét */}
+        {/* Menu gợi ý Slash Command / hoặc bấm nút tia sét (RỘNG BẰNG KHUNG CHAT) */}
         {(showSlashMenu || message.startsWith("/")) && (
-          <div className="absolute bottom-full left-4 z-40 mb-2 w-80 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-100 px-2.5 py-1.5 text-[11px] font-semibold text-slate-400 uppercase">
-              <span>Tin mẫu nhanh (phím /)</span>
+          <div className="absolute bottom-full left-4 right-4 z-40 mb-2 rounded-xl border border-slate-200 bg-white p-2 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
+              <span>Tin nhắn mẫu nhanh (phím /)</span>
               <button
                 type="button"
                 onClick={() => setShowSlashMenu(false)}
-                className="text-slate-400 hover:text-slate-600 text-xs"
+                className="text-slate-400 hover:text-slate-600 text-xs font-medium cursor-pointer"
               >
                 ✕ Đóng
               </button>
             </div>
-            <div className="max-h-52 overflow-y-auto space-y-0.5 p-0.5">
+            <div className="max-h-60 overflow-y-auto space-y-1 p-1">
               {filteredQuickReplies.length === 0 ? (
-                <div className="p-3 text-center type-caption text-slate-400">Không tìm thấy mẫu phù hợp</div>
+                <div className="p-4 text-center type-caption text-slate-400">Không tìm thấy mẫu phù hợp</div>
               ) : (
                 filteredQuickReplies.map((qr) => (
                   <button
@@ -356,15 +361,17 @@ export default function ChatArea({
                       onMessageChange(qr.content)
                       setShowSlashMenu(false)
                     }}
-                    className="flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left hover:bg-slate-50 transition-colors"
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-slate-50 transition-colors cursor-pointer group"
                   >
-                    <span className="font-mono text-xs font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                    <span className="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded shrink-0">
                       {qr.shortcut}
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="type-label text-slate-900 text-xs font-semibold">{qr.title}</div>
-                      <div className="truncate type-caption text-slate-500 text-[11px]">{qr.content}</div>
-                    </div>
+                    <span className="type-label text-slate-900 font-semibold text-xs shrink-0 w-36 truncate">
+                      {qr.title}
+                    </span>
+                    <span className="type-caption text-slate-500 text-[12px] truncate flex-1">
+                      {qr.content}
+                    </span>
                   </button>
                 ))
               )}
@@ -400,7 +407,7 @@ export default function ChatArea({
           </div>
         )}
 
-        {/* Ô nhập tin nhắn mượt mà, phẳng phiu, không cộm, Enter để gửi */}
+        {/* Ô nhập tin nhắn: Căn giữa hoàn hảo, không lệch placeholder, Enter để gửi */}
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -409,11 +416,11 @@ export default function ChatArea({
               if (textareaRef.current) textareaRef.current.style.height = "auto"
             }
           }}
-          className="flex w-full items-end rounded-xl border border-slate-200 bg-slate-50/80 px-2.5 py-1.5 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all"
+          className="flex w-full items-center rounded-xl border border-slate-200 bg-slate-50/80 px-2.5 py-1 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all"
         >
           {/* Nút đính kèm ảnh */}
           <label
-            className="flex cursor-pointer items-center justify-center size-7 rounded-lg text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 transition-colors shrink-0 mb-0.5"
+            className="flex cursor-pointer items-center justify-center size-8 rounded-lg text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 transition-colors shrink-0"
             title="Đính kèm ảnh"
           >
             <PaperclipIcon className="size-4" />
@@ -436,14 +443,14 @@ export default function ChatArea({
             type="button"
             onClick={() => setShowSlashMenu((v) => !v)}
             title="Mẫu câu nhanh"
-            className={`flex items-center justify-center size-7 rounded-lg transition-colors shrink-0 mb-0.5 ml-0.5 ${
+            className={`flex items-center justify-center size-8 rounded-lg transition-colors shrink-0 ml-0.5 ${
               showSlashMenu ? "bg-amber-100 text-amber-600" : "text-slate-400 hover:bg-slate-200/60 hover:text-amber-500"
             }`}
           >
             <ZapIcon className="size-4" />
           </button>
 
-          {/* Khung nhập văn bản: Tự động co giãn theo số dòng */}
+          {/* Khung nhập văn bản: Căn giữa thẳng hàng với icon, tự co giãn khi gõ nhiều dòng */}
           <textarea
             ref={textareaRef}
             value={message}
@@ -458,7 +465,7 @@ export default function ChatArea({
             }}
             placeholder="Nhập tin nhắn (Enter để gửi, Shift+Enter xuống dòng)..."
             rows={1}
-            className="mx-2 block flex-1 resize-none bg-transparent type-body text-slate-900 outline-none placeholder:text-slate-400 leading-normal min-h-[24px] max-h-40 overflow-y-auto"
+            className="mx-2 block flex-1 resize-none bg-transparent type-body text-slate-900 outline-none placeholder:text-slate-400 leading-normal py-1.5 min-h-[36px] max-h-40 overflow-y-auto"
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault()
