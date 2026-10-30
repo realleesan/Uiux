@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from "react"
+import { ClockIcon, CloseIcon } from "./icons"
+import { Button, Chip, Field, IconButton, inputClass } from "./ui"
 
 type SnoozeModalProps = {
   isOpen: boolean
@@ -31,58 +33,44 @@ export default function SnoozeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs select-none">
-      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl border border-slate-200/90 font-body">
+      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl border border-slate-200">
         {/* Header Modal */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-amber-100 text-amber-800 text-sm font-bold">
-              ⏱
+            <span className="flex size-7 items-center justify-center rounded-lg bg-amber-100 text-amber-800">
+              <ClockIcon className="size-4" />
             </span>
-            <h3 className="font-heading font-bold text-slate-900 text-sm">
+            <h3 className="type-title text-slate-900">
               Tạm hoãn cuộc hội thoại
             </h3>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 text-lg leading-none p-1"
-          >
-            ✕
-          </button>
+          <IconButton label="Đóng" onClick={onClose}>
+            <CloseIcon className="size-4" />
+          </IconButton>
         </div>
 
         {/* Thân Modal */}
-        <div className="mt-4 space-y-3.5 text-xs">
-          <p className="text-slate-500 font-normal leading-relaxed">
+        <div className="mt-4 space-y-3.5 type-body">
+          <p className="type-caption text-slate-500 leading-relaxed">
             Hội thoại sẽ tạm chuyển sang danh sách <strong>Tạm hoãn</strong>. Khi hết hạn, hệ thống tự động đưa về đầu mục <strong>Cần trả lời</strong> với viền cảnh báo nổi bật.
           </p>
 
           <div>
-            <label className="font-medium text-slate-700 block mb-1.5 font-heading">
-              Mốc thời gian dự kiến:
-            </label>
-            <div className="grid grid-cols-2 gap-2">
+            <span className="type-caption text-slate-500 block mb-1.5">Mốc thời gian dự kiến:</span>
+            <div className="flex gap-2">
               {["3 phút", "5 phút"].map((delay) => (
-                <button
+                <Chip
                   key={delay}
-                  type="button"
+                  active={snoozeDelay === delay}
                   onClick={() => onDelayChange(delay)}
-                  className={`rounded-xl py-2 text-xs font-heading font-semibold border transition-all ${
-                    snoozeDelay === delay
-                      ? "bg-amber-600 text-white border-amber-600 shadow-2xs"
-                      : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                  }`}
                 >
                   {delay} (Ưu tiên)
-                </button>
+                </Chip>
               ))}
             </div>
           </div>
 
-          <div>
-            <label className="font-medium text-slate-700 block mb-1.5 font-heading">
-              Ghi chú nhanh ngữ cảnh (Nhấn Enter xác nhận):
-            </label>
+          <Field label="Ghi chú nhanh ngữ cảnh (Nhấn Enter xác nhận):">
             <input
               ref={inputRef}
               value={snoozeNote}
@@ -94,26 +82,18 @@ export default function SnoozeModal({
                 }
               }}
               placeholder="VD: Kiểm tra màu trắng size M tại kho..."
-              className="h-10 w-full rounded-xl border border-slate-300 px-3 text-xs outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-100 transition-all font-body"
+              className={inputClass}
             />
-          </div>
+          </Field>
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 rounded-xl border border-slate-300 py-2.5 font-heading font-medium text-slate-700 hover:bg-slate-50 transition-all"
-            >
+            <Button variant="secondary" size="md" block onClick={onClose}>
               Hủy
-            </button>
-            <button
-              type="button"
-              onClick={onConfirm}
-              className="flex-1 rounded-xl bg-amber-600 py-2.5 font-heading font-bold text-white hover:bg-amber-700 shadow-xs active:scale-95 transition-all"
-            >
+            </Button>
+            <Button variant="warning" size="md" block onClick={onConfirm}>
               Xác nhận ({snoozeDelay})
-            </button>
+            </Button>
           </div>
         </div>
       </div>

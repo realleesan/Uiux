@@ -51,8 +51,16 @@ export default function App() {
 
       {/* Vùng hiển thị màn hình tương ứng */}
       <div className="min-h-0 flex-1 overflow-hidden">
-        {currentMode === "wireframe" && <WireframeView />}
-        {currentMode === "prototype-v1" && <PrototypeV1View />}
+        {currentMode === "wireframe" && (
+          <div className="legacy-typography h-full">
+            <WireframeView />
+          </div>
+        )}
+        {currentMode === "prototype-v1" && (
+          <div className="legacy-typography h-full">
+            <PrototypeV1View />
+          </div>
+        )}
         {currentMode === "prototype-v2" && <PrototypeV2View />}
       </div>
     </div>

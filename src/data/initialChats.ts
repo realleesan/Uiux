@@ -1,11 +1,10 @@
 import { Chat, ChatTag, HistoryMessage, ProductItem, QuickReply } from "../types/chat"
 
 export const sampleTags: ChatTag[] = [
-  { id: "all", label: "Tất cả", color: "text-slate-700", bg: "bg-slate-100", border: "border-slate-200" },
-  { id: "chotDon", label: "Khách chốt đơn", color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" },
-  { id: "checkKho", label: "Chờ check kho", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200" },
-  { id: "tuVanSize", label: "Tư vấn size", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-200" },
-  { id: "henCK", label: "Chờ chuyển khoản", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-200" },
+  { id: "chotDon", label: "Chốt đơn", tone: "emerald" },
+  { id: "checkKho", label: "Kiểm tra kho", tone: "amber" },
+  { id: "tuVanSize", label: "Tư vấn size", tone: "blue" },
+  { id: "henCK", label: "Chờ chuyển khoản", tone: "violet" },
 ]
 
 export const sampleProducts: ProductItem[] = [
@@ -115,29 +114,29 @@ export const sampleQuickReplies: QuickReply[] = [
   {
     id: "qr1",
     shortcut: "/size",
-    title: "Tư vấn size & Form dáng",
-    content: "Dạ mẫu này form chuẩn ạ! Bạn cho shop xin chiều cao và cân nặng để shop tư vấn size vừa vặn tôn dáng nhất cho mình nhé! ✨",
+    title: "Hỏi số đo",
+    content: "Dạ mẫu này form chuẩn ạ. Bạn cho shop xin chiều cao và cân nặng để shop tư vấn size vừa nhất cho mình nhé.",
     category: "size",
   },
   {
     id: "qr2",
     shortcut: "/stk",
-    title: "Thông tin chuyển khoản",
-    content: "Dạ thông tin thanh toán của shop:\n• Ngân hàng: MB Bank\n• STK: 888899990001 (NGUYEN THI VY)\n• Nội dung: [Tên bạn] + [SĐT]\nChuyển khoản xong bạn chụp lại bill gửi shop xác nhận đi đơn liền nhé ạ!",
+    title: "Chuyển khoản",
+    content: "Dạ thông tin thanh toán của shop:\n- Ngân hàng: MB Bank\n- STK: 888899990001 (NGUYEN THI VY)\n- Nội dung: Tên + SĐT\nBạn chuyển khoản xong gửi shop ảnh xác nhận để shop lên đơn nhé.",
     category: "payment",
   },
   {
     id: "qr3",
     shortcut: "/freeship",
-    title: "Chính sách Freeship",
-    content: "Dạ shop đang có chương trình tri ân: MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC cho đơn hàng từ 2 sản phẩm hoặc hóa đơn từ 500k ạ! Bạn xem thêm mẫu để được freeship nha 🎉",
+    title: "Freeship",
+    content: "Dạ shop đang miễn phí vận chuyển toàn quốc cho đơn từ 2 sản phẩm hoặc từ 500.000đ ạ.",
     category: "shipping",
   },
   {
     id: "qr4",
     shortcut: "/doihang",
-    title: "Chính sách đổi trả",
-    content: "Dạ bạn hoàn toàn yên tâm nha! Shop hỗ trợ kiểm tra hàng trước khi thanh toán và hỗ trợ đổi size trong vòng 7 ngày nếu không vừa vặn ạ.",
+    title: "Đổi trả",
+    content: "Dạ shop hỗ trợ kiểm tra hàng trước khi thanh toán và đổi size trong vòng 7 ngày nếu không vừa ạ.",
     category: "policy",
   },
 ]

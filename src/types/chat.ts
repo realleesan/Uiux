@@ -43,12 +43,12 @@ export type QuickReply = {
   category: "size" | "payment" | "policy" | "shipping"
 }
 
+export type Tone = "neutral" | "blue" | "amber" | "emerald" | "violet" | "rose"
+
 export type ChatTag = {
   id: string
   label: string
-  color: string
-  bg: string
-  border: string
+  tone: Tone
 }
 
 export type Chat = {

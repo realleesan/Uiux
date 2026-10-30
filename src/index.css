@@ -1,54 +1,106 @@
 @import "tailwindcss";
 
+/* =========================================================================
+   DESIGN TOKENS
+   - 2 font: Plus Jakarta Sans (heading) + Inter (mọi thứ còn lại)
+   - 3 cỡ chữ: 12 / 14 / 16px
+   - 3 độ đậm: 400 / 500 / 600
+   ========================================================================= */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-slate-900);
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
 }
 
-html,
-body,
-#root {
-  height: 100%;
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
-}
+/* =========================================================================
+   TYPOGRAPHY ROLES — 5 vai trò chữ duy nhất được dùng trong Prototype v2.
+   Không dùng text-xs / text-sm / text-[..] / font-bold rời rạc.
+   ========================================================================= */
 
-body {
-  font-family: var(--font-sans);
-  color: #0f172a;
-  background-color: #f8fafc;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.font-heading {
+/* 16px · 600 · Jakarta — Tiêu đề khung chat, tiêu đề modal */
+@utility type-title {
   font-family: var(--font-heading);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-.font-body {
+/* 14px · 600 · Jakarta — Tên khách, tên sản phẩm, tiêu đề section, tổng tiền */
+@utility type-heading {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+/* 14px · 400 · Inter — Nội dung tin nhắn, snippet, giá trị dữ liệu, input */
+@utility type-body {
   font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
 }
 
-button,
-input,
-textarea,
-select {
+/* 14px · 500 · Inter — Nút bấm, tab, mục menu */
+@utility type-label {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+/* 12px · 500 · Inter — Thời gian, nhãn trường, tag, badge, chip */
+@utility type-caption {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+/* =========================================================================
+   LEGACY — Giữ nguyên cách hiển thị của Wireframe & Prototype v1 (bản đối chứng)
+   ========================================================================= */
+.legacy-typography :where(button, input, textarea, select) {
   font: inherit;
 }
 
-button {
-  cursor: pointer;
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 340px minmax(500px, 1fr);
+    overflow-x: auto;
+  }
 }
 
-/* Custom scrollbar mỏng, thanh lịch */
+/* Scrollbar mảnh */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -62,4 +114,12 @@ button {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
