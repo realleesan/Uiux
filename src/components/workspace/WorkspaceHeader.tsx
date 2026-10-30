@@ -49,16 +49,13 @@ export default function WorkspaceHeader({
 
         <div className="h-4 w-px bg-slate-200" />
 
-        {/* Nút Đăng xuất chuẩn hệ thống cơ bản */}
-        <button
-          type="button"
+        {/* Nút Đăng xuất gọn gàng chỉ có icon */}
+        <IconButton
+          label="Đăng xuất"
           onClick={() => alert(`Đăng xuất: Đã lưu phiên làm việc của nhân viên ${employeeName}`)}
-          title="Đăng xuất khỏi hệ thống"
-          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 type-caption text-slate-600 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 transition-colors"
         >
-          <LogOutIcon className="size-3.5" />
-          <span>Đăng xuất</span>
-        </button>
+          <LogOutIcon className="size-4" />
+        </IconButton>
 
         {/* Nút thu gọn / mở cột tiện ích */}
         <IconButton

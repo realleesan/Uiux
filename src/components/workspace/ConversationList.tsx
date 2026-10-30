@@ -44,25 +44,25 @@ export default function ConversationList({
     return Math.floor(seconds / 60) + ":" + String(seconds % 60).padStart(2, "0")
   }
 
-  // 4 Tab chuẩn theo hệ thống lớn (Pancake, Intercom): Tất cả & Chưa đọc là cốt lõi
+  // 4 Tab chuẩn: Tất cả, Chưa đọc, Cần trả lời, Tạm hoãn (không dùng dot đếm số tin làm khuất text)
   const navItems = [
-    { id: "all", label: "Tất cả", count: conversationCounts.all },
-    { id: "unread", label: "Chưa đọc", count: conversationCounts.unread, alert: conversationCounts.unread > 0 },
-    { id: "needsReply", label: "Cần xử lý", count: conversationCounts.needsReply },
-    { id: "snoozed", label: "Tạm hoãn", count: conversationCounts.snoozed },
+    { id: "all", label: "Tất cả" },
+    { id: "unread", label: "Chưa đọc" },
+    { id: "needsReply", label: "Cần trả lời" },
+    { id: "snoozed", label: "Tạm hoãn" },
   ]
 
   return (
     <section className="flex min-h-0 flex-col border-r border-slate-200 bg-white">
-      {/* 4 Tab Nghiệp vụ: Cân đối, chuẩn SaaS */}
+      {/* 4 Tab phẳng gọn gàng, không bị khuất chữ */}
       <Tabs
         items={navItems}
         value={activeNav}
         onChange={onSelectNav}
       />
 
-      {/* Tìm kiếm & Dropdown lọc theo nhãn chuẩn hệ thống lớn */}
-      <div className="border-b border-slate-200 p-2.5 space-y-2 bg-white">
+      {/* Tìm kiếm & Dropdown lọc theo nhãn */}
+      <div className="border-b border-slate-200 p-2 space-y-1.5 bg-white">
         <div className="relative flex items-center">
           <span className="pointer-events-none absolute left-3 text-slate-400">
             <SearchIcon className="size-4" />
@@ -70,30 +70,24 @@ export default function ConversationList({
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Tìm theo tên khách, nội dung..."
+            placeholder="Tìm kiếm..."
             className="h-8.5 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-8.5 pr-3 type-body text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:bg-white transition-colors"
           />
         </div>
 
-        {/* Dropdown Lọc nhãn: Tối giản, không bị rườm rà hay giãn dòng */}
-        <div className="flex items-center justify-between gap-2 px-0.5">
-          <div className="flex items-center gap-1.5 text-slate-500 type-caption">
-            <TagIcon className="size-3.5 text-slate-400" />
-            <span>Nhãn:</span>
-          </div>
-          <select
-            value={selectedTag}
-            onChange={(e) => onSelectTag(e.target.value)}
-            className="h-7 rounded-md border border-slate-200 bg-slate-50 px-2 type-caption text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-colors"
-          >
-            <option value="all">Tất cả nhãn</option>
-            {tags.map((tag) => (
-              <option key={tag.id} value={tag.id}>
-                {tag.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Dropdown Lọc nhãn: Tối giản trực tiếp, không icon thừa hay chữ nhãn */}
+        <select
+          value={selectedTag}
+          onChange={(e) => onSelectTag(e.target.value)}
+          className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 type-caption text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-colors"
+        >
+          <option value="all">Tất cả nhãn</option>
+          {tags.map((tag) => (
+            <option key={tag.id} value={tag.id}>
+              {tag.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Danh sách thẻ hội thoại */}

@@ -80,29 +80,23 @@ export default function ChatArea({
       {/* Header cuộc trò chuyện */}
       <header className="flex h-13 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 select-none">
         <div className="flex items-center gap-3">
-          <Avatar src={customer?.avatar} name={customer?.name} size="md" />
+          <Avatar src={customer?.avatar} name={customer?.name} size="md" channel />
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="type-title text-slate-900">{customer?.name}</h2>
-              <span className="inline-flex items-center gap-1 type-caption text-emerald-600">
-                <span className="size-1.5 rounded-full bg-emerald-500" />
-                Trực tuyến
-              </span>
+            <h2 className="type-title text-slate-900 leading-tight">{customer?.name}</h2>
+            <div className="flex items-center gap-1.5 type-caption text-emerald-600 font-medium">
+              <span className="size-1.5 rounded-full bg-emerald-500" />
+              <span>Đang hoạt động</span>
             </div>
-            <p className="type-caption text-slate-500">
-              Facebook Messenger · Phản hồi trong vài phút
-            </p>
           </div>
         </div>
 
-        {/* Thao tác Header */}
+        {/* Thao tác Header: Bỏ icon rác */}
         <div className="flex items-center gap-2">
           {/* Nút Gán nhãn */}
           <div className="relative">
             <Button
               variant="secondary"
               size="sm"
-              icon={<TagIcon className="size-3.5" />}
               onClick={onToggleTagDropdown}
             >
               Gán nhãn
@@ -131,7 +125,6 @@ export default function ChatArea({
           <Button
             variant={customer?.status === "snoozed" ? "warning" : "secondary"}
             size="sm"
-            icon={<ClockIcon className="size-3.5" />}
             onClick={onOpenSnooze}
           >
             {customer?.status === "snoozed" ? `Đang hoãn (${remainingTimeText})` : "Tạm hoãn"}
@@ -158,8 +151,8 @@ export default function ChatArea({
                   <button
                     type="button"
                     onClick={() => {
-                    onTriggerExpireSnooze()
-                    setMoreOpen(false)
+                      onTriggerExpireSnooze()
+                      setMoreOpen(false)
                     }}
                     className="w-full rounded-lg px-3 py-2 text-left type-label text-amber-700 hover:bg-amber-50"
                   >
@@ -186,27 +179,21 @@ export default function ChatArea({
 
       {/* Vùng Tin nhắn Cuộn */}
       <div aria-label="Nội dung trao đổi" className="min-h-0 flex-1 overflow-y-auto px-6 py-4 space-y-3">
-        {/* Banner Nhắc việc khi đến hạn */}
+        {/* Banner Nhắc việc khi đến hạn: Nhẹ nhàng, thanh thoát */}
         {customer?.returnedNote && (
-          <div className="sticky top-0 z-10 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50/95 p-3 shadow-xs backdrop-blur-xs">
-            <div className="flex items-center gap-2.5 type-body text-amber-900">
-              <ClockIcon className="size-4 shrink-0 text-amber-600" />
-              <div>
-                <span className="type-heading text-amber-950">Đến hạn nhắc việc quay lại:</span>{" "}
-                <span>"{customer.returnedNote}"</span>
-              </div>
+          <div className="sticky top-2 z-10 flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50/95 px-3 py-1.5 shadow-xs backdrop-blur-xs">
+            <div className="flex items-center gap-2 type-caption text-amber-900 truncate">
+              <span className="size-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+              <span className="font-semibold shrink-0">Đến hạn nhắc lại:</span>
+              <span className="truncate">"{customer.returnedNote}"</span>
             </div>
-            <Button variant="ghost" size="sm" onClick={onDismissReturnedNote}>
+            <button
+              type="button"
+              onClick={onDismissReturnedNote}
+              className="ml-2 shrink-0 rounded px-1.5 py-0.5 type-caption font-semibold text-amber-800 hover:bg-amber-100 transition-colors"
+            >
               Đã rõ
-            </Button>
-          </div>
-        )}
-
-        {/* Ghi chú nội bộ */}
-        {customer?.internalNote && (
-          <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2 type-caption text-amber-900">
-            <span className="font-semibold text-amber-800">Ghi chú ca trực:</span>
-            <span className="flex-1 text-slate-700">{customer.internalNote}</span>
+            </button>
           </div>
         )}
 
@@ -285,12 +272,12 @@ export default function ChatArea({
                   <Avatar src={customer?.avatar} name={customer?.name} size="sm" />
                 )}
 
-                {/* Bong bóng tin nhắn với GIỜ GỬI NẰM BÊN TRONG BONG BÓNG */}
+                {/* Bong bóng tin nhắn hình chữ nhật bo 4 góc đều đặn, không vót nhọn */}
                 <div
                   className={`relative whitespace-pre-wrap break-words rounded-2xl px-3.5 pt-2 pb-1.5 type-body leading-relaxed shadow-2xs ${
                     isShop
-                      ? "rounded-br-xs bg-blue-600 text-white"
-                      : "rounded-bl-xs border border-slate-200/80 bg-white text-slate-900"
+                      ? "bg-blue-600 text-white"
+                      : "border border-slate-200/80 bg-white text-slate-900"
                   }`}
                 >
                   {entry.image && (
@@ -440,7 +427,7 @@ export default function ChatArea({
               /
             </button>
 
-            {/* Khung nhập văn bản */}
+            {/* Khung nhập văn bản: Placeholder đơn giản */}
             <textarea
               value={message}
               onChange={(e) => {
@@ -452,7 +439,7 @@ export default function ChatArea({
                   setShowSlashMenu(false)
                 }
               }}
-              placeholder="Nhập tin nhắn (gõ / để chèn tin mẫu)..."
+              placeholder="Nhập tin nhắn..."
               rows={1}
               className="mx-2 block flex-1 resize-none bg-transparent type-body text-slate-900 outline-none placeholder:text-slate-400 leading-normal max-h-24"
               onKeyDown={(e) => {
@@ -464,16 +451,16 @@ export default function ChatArea({
             />
           </div>
 
-          {/* Nút Gửi */}
-          <Button
-            variant="primary"
-            size="md"
-            icon={<SendIcon className="size-3.5" />}
+          {/* Nút Gửi: Chỉ hiển thị icon tinh gọn */}
+          <button
+            type="button"
+            title="Gửi tin nhắn"
             disabled={!message.trim() && !attachment}
             onClick={() => onSendMessage()}
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:pointer-events-none transition-colors"
           >
-            Gửi
-          </Button>
+            <SendIcon className="size-4" />
+          </button>
         </form>
       </footer>
     </main>

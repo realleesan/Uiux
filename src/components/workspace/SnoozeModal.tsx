@@ -52,11 +52,11 @@ export default function SnoozeModal({
         {/* Thân Modal */}
         <div className="mt-4 space-y-3.5 type-body">
           <p className="type-caption text-slate-500 leading-relaxed">
-            Hội thoại sẽ tạm chuyển sang danh sách <strong>Tạm hoãn</strong>. Khi hết hạn, hệ thống tự động đưa về đầu mục <strong>Cần trả lời</strong> với viền cảnh báo nổi bật.
+            Tạm hoãn hội thoại để kiểm tra kho. Hệ thống sẽ tự động nhắc lại khi đến hạn.
           </p>
 
           <div>
-            <span className="type-caption text-slate-500 block mb-1.5">Mốc thời gian dự kiến:</span>
+            <span className="type-caption text-slate-500 block mb-1.5">Thời gian hẹn:</span>
             <div className="flex gap-2">
               {["3 phút", "5 phút"].map((delay) => (
                 <Chip
@@ -64,13 +64,13 @@ export default function SnoozeModal({
                   active={snoozeDelay === delay}
                   onClick={() => onDelayChange(delay)}
                 >
-                  {delay} (Ưu tiên)
+                  {delay}
                 </Chip>
               ))}
             </div>
           </div>
 
-          <Field label="Ghi chú nhanh ngữ cảnh (Nhấn Enter xác nhận):">
+          <Field label="Ghi chú nhắc việc:">
             <input
               ref={inputRef}
               value={snoozeNote}
@@ -81,17 +81,17 @@ export default function SnoozeModal({
                   onConfirm()
                 }
               }}
-              placeholder="VD: Kiểm tra màu trắng size M tại kho..."
+              placeholder="Ghi chú nhắc việc..."
               className={inputClass}
             />
           </Field>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2 pt-2">
-            <Button variant="secondary" size="md" block onClick={onClose}>
+          {/* Action Buttons: Dùng grid grid-cols-2 để 2 nút chia đôi 50-50, không bao giờ bị tràn */}
+          <div className="grid grid-cols-2 gap-2 pt-2">
+            <Button variant="secondary" size="md" onClick={onClose}>
               Hủy
             </Button>
-            <Button variant="warning" size="md" block onClick={onConfirm}>
+            <Button variant="warning" size="md" onClick={onConfirm}>
               Xác nhận ({snoozeDelay})
             </Button>
           </div>

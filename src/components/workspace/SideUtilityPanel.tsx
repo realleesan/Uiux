@@ -75,7 +75,7 @@ export default function SideUtilityPanel({
   onTriggerExpireSnooze,
 }: SideUtilityPanelProps) {
   const tabs = [
-    { id: "inventory" as const, label: "Tồn kho & Size" },
+    { id: "inventory" as const, label: "Tồn kho" },
     { id: "pos" as const, label: "Tạo đơn hàng" },
     { id: "snooze" as const, label: "Nhắc việc" },
   ]
@@ -93,15 +93,19 @@ export default function SideUtilityPanel({
         onChange={onSelectTab}
       />
 
-      {/* ===================== TAB 1: TỒN KHO & BẢNG SIZE ===================== */}
+      {/* ===================== TAB 1: TỒN KHO ===================== */}
       {utilityTab === "inventory" && (
         <div className="min-h-0 flex-1 overflow-y-auto p-3.5 space-y-3">
-          {/* Thẻ Hồ sơ tư vấn khách hàng (CRM Consultation Context) */}
+          {/* Thẻ Khách hàng CRM (kèm avatar thật và ghi chú ca trực) */}
           {customer && (
-            <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-2.5 space-y-1.5">
+            <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-2.5 space-y-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <UserIcon className="size-3.5 text-blue-600" />
+                <div className="flex items-center gap-2">
+                  <img
+                    src={customer.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100"}
+                    alt={customer.name}
+                    className="size-6 rounded-full object-cover border border-slate-200 shadow-2xs"
+                  />
                   <span className="type-heading text-slate-900">{customer.name}</span>
                 </div>
                 {customer.customerPhone && (
@@ -125,6 +129,14 @@ export default function SideUtilityPanel({
               ) : (
                 <p className="type-caption text-slate-500">Chưa có số đo cụ thể</p>
               )}
+
+              {/* Ghi chú ca trực: Luôn hiển thị trong CRM để không phải cuộn lên đầu chat */}
+              {customer.internalNote && (
+                <div className="rounded-lg bg-amber-50/70 border border-amber-200/60 px-2.5 py-1.5 type-caption text-amber-900">
+                  <span className="font-semibold text-amber-950 block mb-0.5">Ghi chú ca trực:</span>
+                  <span className="text-slate-700">{customer.internalNote}</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -137,7 +149,7 @@ export default function SideUtilityPanel({
               <input
                 value={productSearch}
                 onChange={(e) => onProductSearchChange(e.target.value)}
-                placeholder="Tra cứu mã: VD01, SM03, QJ02..."
+                placeholder="Nhập mã sản phẩm..."
                 className="h-8.5 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-8.5 pr-3 type-body text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:bg-white transition-colors"
               />
             </div>
@@ -176,44 +188,51 @@ export default function SideUtilityPanel({
               </div>
             </div>
 
-            {/* Bảng tồn kho */}
+            {/* Bảng tồn kho căn chỉnh chuẩn mực 100% */}
             <div>
-              <div className="flex items-center justify-between type-caption text-slate-400 uppercase font-semibold mb-1 px-1">
+              <div className="flex items-center justify-between type-caption text-slate-400 uppercase font-semibold mb-1 px-2.5">
                 <span>Phân loại</span>
-                <span>Tồn kho & Thao tác</span>
+                <div className="flex items-center gap-5 pr-1">
+                  <span>Tồn kho</span>
+                  <span>Thao tác</span>
+                </div>
               </div>
               <div className="divide-y divide-slate-100 border border-slate-200 rounded-lg bg-white overflow-hidden type-body">
                 {selectedProduct.variants.map((v, i) => (
                   <div key={i} className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50/60 transition-colors">
-                    <span className="text-slate-800 text-[13px]">
+                    <span className="text-slate-800 text-[13px] truncate">
                       {v.color} · Size {v.size}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <Tag tone={v.stock > 5 ? "emerald" : v.stock > 0 ? "amber" : "rose"}>
-                        {v.stock > 0 ? `Còn ${v.stock}` : "Hết"}
-                      </Tag>
-                      {v.stock > 0 ? (
-                        <button
-                          type="button"
-                          onClick={() => onInsertInventoryInfo(selectedProduct, `${v.color} - Size ${v.size}`, v.stock)}
-                          className="rounded border border-blue-200 bg-blue-50/60 px-2 py-0.5 type-caption font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                        >
-                          Tư vấn
-                        </button>
-                      ) : (
-                        <span className="type-caption text-slate-400 px-1 select-none">—</span>
-                      )}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="w-16 flex justify-end">
+                        <Tag tone={v.stock > 5 ? "emerald" : v.stock > 0 ? "amber" : "rose"}>
+                          {v.stock > 0 ? `Còn ${v.stock}` : "Hết hàng"}
+                        </Tag>
+                      </span>
+                      <span className="w-12 flex justify-end">
+                        {v.stock > 0 ? (
+                          <button
+                            type="button"
+                            onClick={() => onInsertInventoryInfo(selectedProduct, `${v.color} - Size ${v.size}`, v.stock)}
+                            className="rounded border border-blue-200 bg-blue-50/60 px-2 py-0.5 type-caption font-medium text-blue-700 hover:bg-blue-100 transition-colors w-full text-center"
+                          >
+                            Tư vấn
+                          </button>
+                        ) : (
+                          <span className="type-caption text-slate-300 select-none text-center block w-full">—</span>
+                        )}
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Nút bấm bỏ icon rác */}
             <Button
               variant="primary"
               size="sm"
               block
-              icon={<ReceiptIcon className="size-3.5" />}
               onClick={() => onChooseProductForOrder(selectedProduct.code)}
             >
               Chọn sản phẩm này tạo đơn
@@ -232,7 +251,14 @@ export default function SideUtilityPanel({
           )}
 
           <div className="flex items-center justify-between">
-            <span className="type-heading text-slate-900">Thông tin đơn hàng</span>
+            <div className="flex items-center gap-2">
+              <img
+                src={customer?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100"}
+                alt={customer?.name}
+                className="size-6 rounded-full object-cover border border-slate-200 shadow-2xs"
+              />
+              <span className="type-heading text-slate-900">{customer?.name || "Khách hàng"}</span>
+            </div>
             <button
               type="button"
               onClick={onAutoFillPOS}
@@ -247,7 +273,7 @@ export default function SideUtilityPanel({
               <input
                 value={orderName}
                 onChange={(e) => onOrderNameChange(e.target.value)}
-                placeholder="Nguyễn Thị Minh Trang"
+                placeholder="Họ tên người nhận"
                 className={inputClass}
               />
             </Field>
@@ -256,7 +282,7 @@ export default function SideUtilityPanel({
               <input
                 value={orderPhone}
                 onChange={(e) => onOrderPhoneChange(e.target.value)}
-                placeholder="0912345678"
+                placeholder="Số điện thoại"
                 className={inputClass}
               />
             </Field>
@@ -265,7 +291,7 @@ export default function SideUtilityPanel({
               <input
                 value={orderAddress}
                 onChange={(e) => onOrderAddressChange(e.target.value)}
-                placeholder="Số 123 Cầu Giấy, Hà Nội"
+                placeholder="Địa chỉ nhận hàng"
                 className={inputClass}
               />
             </Field>
@@ -340,10 +366,9 @@ export default function SideUtilityPanel({
               variant="success"
               size="md"
               block
-              icon={<ReceiptIcon className="size-4" />}
               onClick={onConfirmOrder}
             >
-              Tạo đơn & Gửi biên lai
+              Tạo đơn hàng
             </Button>
           </div>
         </div>
@@ -375,11 +400,11 @@ export default function SideUtilityPanel({
               </div>
             </div>
 
-            <Field label="Ghi chú ngữ cảnh:">
+            <Field label="Ghi chú nhắc việc:">
               <input
                 value={snoozeNote}
                 onChange={(e) => onSnoozeNoteChange(e.target.value)}
-                placeholder="VD: Kiểm tra kho mẫu AT02 đen..."
+                placeholder="Ghi chú nhắc việc..."
                 className={inputClass}
               />
             </Field>
@@ -388,7 +413,6 @@ export default function SideUtilityPanel({
               variant="warning"
               size="md"
               block
-              icon={<ClockIcon className="size-4" />}
               onClick={onConfirmSnooze}
             >
               Bắt đầu hẹn ({snoozeDelay})

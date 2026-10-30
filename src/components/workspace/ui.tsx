@@ -175,6 +175,12 @@ export function Field({ label, children }: { label: string; children: ReactNode 
   )
 }
 
+export const MessengerIcon = ({ className = "size-2" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+    <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.914 1.455 5.518 3.735 7.15V22l3.411-1.872c.91.252 1.872.388 2.854.388 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2Zm1.025 12.44-2.56-2.73-5 2.73 5.5-5.845 2.623 2.73 4.937-2.73-5.5 5.845Z" />
+  </svg>
+)
+
 const avatarSize = { sm: "size-7", md: "size-9", lg: "size-10" }
 
 export function Avatar({
@@ -194,8 +200,10 @@ export function Avatar({
       {channel && (
         <span
           title="Facebook Messenger"
-          className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full bg-blue-600 ring-2 ring-white"
-        />
+          className="absolute -bottom-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-blue-600 text-white ring-2 ring-white shadow-2xs"
+        >
+          <MessengerIcon className="size-2 text-white" />
+        </span>
       )}
     </span>
   )
