@@ -150,67 +150,73 @@ export default function SideUtilityPanel({
             />
           </div>
 
-          {/* Chi tiết sản phẩm */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2.5">
-            <div className="flex gap-2.5">
+          {/* Chi tiết sản phẩm & Tồn kho */}
+          <div className="rounded-xl border border-slate-200/90 bg-white p-3 space-y-3 shadow-2xs">
+            <div className="flex gap-2.5 items-center">
               <img
                 src={selectedProduct.image}
                 alt={selectedProduct.name}
                 className="size-13 rounded-lg object-cover border border-slate-200 shrink-0"
               />
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="type-caption font-semibold text-blue-700">[{selectedProduct.code}]</span>
                   <span className="type-caption text-slate-500">{selectedProduct.category}</span>
                 </div>
-                <h4 className="type-heading text-slate-900 leading-snug line-clamp-1">
+                <h4 className="type-heading text-slate-900 leading-snug line-clamp-1" title={selectedProduct.name}>
                   {selectedProduct.name}
                 </h4>
                 <p className="type-heading text-slate-900 font-semibold">{selectedProduct.priceFormatted}</p>
               </div>
             </div>
 
-            {/* Bảng tồn kho căn chỉnh chuẩn mực 100% */}
-            <div>
-              <div className="flex items-center justify-between type-caption text-slate-400 uppercase font-semibold mb-1 px-2.5">
+            {/* Bảng tồn kho dạng Grid căn chỉnh chuẩn mực 100% */}
+            <div className="space-y-1">
+              <div className="grid grid-cols-[1fr_72px_64px] items-center px-3 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
                 <span>Phân loại</span>
-                <div className="flex items-center gap-5 pr-1">
-                  <span>Tồn kho</span>
-                  <span>Thao tác</span>
-                </div>
+                <span className="text-center">Tồn kho</span>
+                <span className="text-center">Thao tác</span>
               </div>
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-lg bg-white overflow-hidden type-body">
+              <div className="divide-y divide-slate-100 rounded-lg border border-slate-200/80 bg-white overflow-hidden">
                 {selectedProduct.variants.map((v, i) => (
-                  <div key={i} className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50/60 transition-colors">
-                    <span className="text-slate-800 text-[13px] truncate">
+                  <div
+                    key={i}
+                    className="grid grid-cols-[1fr_72px_64px] items-center px-3 py-1.5 hover:bg-slate-50 transition-colors"
+                  >
+                    {/* Cột 1: Phân loại */}
+                    <span className="text-[13px] font-medium text-slate-800 truncate" title={`${v.color} · Size ${v.size}`}>
                       {v.color} · Size {v.size}
                     </span>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="w-16 flex justify-end">
-                        <Tag tone={v.stock > 5 ? "emerald" : v.stock > 0 ? "amber" : "rose"}>
-                          {v.stock > 0 ? `Còn ${v.stock}` : "Hết hàng"}
-                        </Tag>
-                      </span>
-                      <span className="w-12 flex justify-end">
-                        {v.stock > 0 ? (
-                          <button
-                            type="button"
-                            onClick={() => onInsertInventoryInfo(selectedProduct, `${v.color} - Size ${v.size}`, v.stock)}
-                            className="rounded border border-blue-200 bg-blue-50/60 px-2 py-0.5 type-caption font-medium text-blue-700 hover:bg-blue-100 transition-colors w-full text-center"
-                          >
-                            Tư vấn
-                          </button>
-                        ) : (
-                          <span className="type-caption text-slate-300 select-none text-center block w-full">—</span>
-                        )}
-                      </span>
+
+                    {/* Cột 2: Tồn kho */}
+                    <div className="flex justify-center">
+                      <Tag tone={v.stock > 5 ? "emerald" : v.stock > 0 ? "amber" : "rose"}>
+                        {v.stock > 0 ? `Còn ${v.stock}` : "Hết hàng"}
+                      </Tag>
+                    </div>
+
+                    {/* Cột 3: Thao tác (Button Tư vấn 1 dòng sắc nét hoặc gạch ngang) */}
+                    <div className="flex justify-center">
+                      {v.stock > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => onInsertInventoryInfo(selectedProduct, `${v.color} - Size ${v.size}`, v.stock)}
+                          className="inline-flex h-6 items-center justify-center rounded-md border border-blue-200 bg-blue-50/70 px-2.5 text-[11px] font-semibold text-blue-700 hover:bg-blue-600 hover:border-blue-600 hover:text-white transition-all whitespace-nowrap active:scale-95"
+                        >
+                          Tư vấn
+                        </button>
+                      ) : (
+                        <span className="inline-flex h-6 items-center justify-center text-xs text-slate-300 select-none">
+                          —
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Nút bấm bỏ icon rác */}
+            {/* Nút bấm tạo đơn nhanh */}
             <Button
               variant="primary"
               size="sm"
