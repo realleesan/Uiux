@@ -7,10 +7,10 @@ import PrototypeV2View from "./views/PrototypeV2View"
 export default function App() {
   // Đọc đường dẫn ban đầu từ URL trình duyệt
   const getInitialMode = (): AppMode => {
-    const path = window.location.pathname.toLowerCase()
-    if (path.includes("wireframe")) return "wireframe"
-    if (path.includes("prototype-v2")) return "prototype-v2"
-    if (path.includes("prototype")) return "prototype-v1"
+    const rawPath = decodeURIComponent(window.location.pathname.toLowerCase())
+    if (rawPath.includes("wireframe")) return "wireframe"
+    if (rawPath.includes("prototype-v1") || rawPath === "/v1") return "prototype-v1"
+    // Mặc định luôn là Prototype v2 (cho /, /prototype-v2, /prototype v2, /prototype, v.v.)
     return "prototype-v2"
   }
 
@@ -19,10 +19,9 @@ export default function App() {
   // Lắng nghe sự kiện back/forward của trình duyệt
   useEffect(() => {
     const handlePopState = () => {
-      const path = window.location.pathname.toLowerCase()
-      if (path.includes("wireframe")) setCurrentMode("wireframe")
-      else if (path.includes("prototype-v2")) setCurrentMode("prototype-v2")
-      else if (path.includes("prototype")) setCurrentMode("prototype-v1")
+      const rawPath = decodeURIComponent(window.location.pathname.toLowerCase())
+      if (rawPath.includes("wireframe")) setCurrentMode("wireframe")
+      else if (rawPath.includes("prototype-v1") || rawPath === "/v1") setCurrentMode("prototype-v1")
       else setCurrentMode("prototype-v2")
     }
 

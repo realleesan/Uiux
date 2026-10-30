@@ -101,7 +101,7 @@ export default function ChatArea({
           <div className="ml-3 flex items-center gap-1.5 border-l border-slate-200 pl-3 type-caption text-slate-500">
             <span>Tư vấn bởi:</span>
             <img
-              src={staffAvatar}
+              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
               alt="Nguyễn Vy"
               title="Nguyễn Vy (Tư vấn viên)"
               className="size-5.5 rounded-full object-cover ring-1 ring-slate-200"
