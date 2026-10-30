@@ -30,9 +30,9 @@ export default function TopModeNav({ currentMode, onChangeMode }: TopModeNavProp
     {
       id: "prototype-v2",
       path: "/prototype-v2",
-      title: "3. Prototype v2 (Cải tiến)",
-      badge: "Phần 6–7",
-      description: "Áp dụng cải tiến sau kiểm thử: Thẻ viền cam & Modal tối ưu 3p",
+      title: "3. Prototype v2 (Pancake)",
+      badge: "3 Cột Mới",
+      description: "Bố cục 3 cột chuẩn Pancake: Tra kho tại chỗ, Tạo đơn POS nhanh, Tin mẫu & Tối giản",
     },
   ]
 
