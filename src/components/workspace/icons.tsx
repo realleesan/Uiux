@@ -106,3 +106,12 @@ export const ChevronDownIcon = (p: IconProps) => (
     <path d="m6 9 6 6 6-6" />
   </Svg>
 )
+
+export const MoreVerticalIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="1" fill="currentColor" />
+    <circle cx="12" cy="5" r="1" fill="currentColor" />
+    <circle cx="12" cy="19" r="1" fill="currentColor" />
+  </Svg>
+)
+
