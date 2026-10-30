@@ -128,7 +128,7 @@ export function Tabs<T extends string>({
   onChange: (id: T) => void
 }) {
   return (
-    <div role="tablist" className="flex h-11 shrink-0 border-b border-slate-200 px-2">
+    <div role="tablist" className="flex h-10 shrink-0 border-b border-slate-200 px-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       {items.map((item) => {
         const active = item.id === value
         return (
@@ -138,14 +138,16 @@ export function Tabs<T extends string>({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(item.id)}
-            className={`-mb-px flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap border-b-2 px-1 type-label transition-colors ${
-              active ? "border-blue-600 text-slate-900" : "border-transparent text-slate-500 hover:text-slate-800"
+            className={`-mb-px flex shrink-0 flex-1 items-center justify-center gap-1 whitespace-nowrap border-b-2 px-2 text-[12.5px] font-medium transition-colors ${
+              active
+                ? "border-blue-600 text-slate-900 font-semibold"
+                : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             {item.label}
             {item.count !== undefined && (
               <span
-                className={`grid h-5 min-w-5 place-items-center rounded-full px-1.5 type-caption ${
+                className={`grid h-4.5 min-w-4.5 place-items-center rounded-full px-1 text-[11px] ${
                   item.alert && item.count > 0
                     ? "bg-rose-500 text-white"
                     : active
@@ -175,9 +177,13 @@ export function Field({ label, children }: { label: string; children: ReactNode 
   )
 }
 
-export const MessengerIcon = ({ className = "size-2" }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-    <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.914 1.455 5.518 3.735 7.15V22l3.411-1.872c.91.252 1.872.388 2.854.388 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2Zm1.025 12.44-2.56-2.73-5 2.73 5.5-5.845 2.623 2.73 4.937-2.73-5.5 5.845Z" />
+export const MessengerIcon = ({ className = "size-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+    <circle cx="12" cy="12" r="12" fill="#0084FF" />
+    <path
+      fill="#FFFFFF"
+      d="M6.5 13.8 11.2 8.8l2.6 2.7 4.2-2.3-4.7 5-2.6-2.7z"
+    />
   </svg>
 )
 
@@ -195,14 +201,14 @@ export function Avatar({
   channel?: boolean
 }) {
   return (
-    <span className="relative shrink-0">
-      <img src={src} alt={name} className={`${avatarSize[size]} rounded-full object-cover`} />
+    <span className="relative inline-block shrink-0">
+      <img src={src} alt={name} className={`${avatarSize[size]} rounded-full object-cover shrink-0`} />
       {channel && (
         <span
           title="Facebook Messenger"
-          className="absolute -bottom-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-blue-600 text-white ring-2 ring-white shadow-2xs"
+          className="absolute -bottom-0.5 -right-0.5 block size-4 shrink-0 rounded-full ring-2 ring-white shadow-2xs overflow-hidden"
         >
-          <MessengerIcon className="size-2 text-white" />
+          <MessengerIcon className="size-full block" />
         </span>
       )}
     </span>

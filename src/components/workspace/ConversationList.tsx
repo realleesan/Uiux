@@ -1,6 +1,6 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Chat, ChatTag } from "../../types/chat"
-import { ClockIcon, SearchIcon, TagIcon } from "./icons"
+import { ClockIcon, MoreHorizontalIcon, SearchIcon, TrashIcon } from "./icons"
 import { Avatar, Tabs, Tag } from "./ui"
 
 type ConversationListProps = {
@@ -11,10 +11,11 @@ type ConversationListProps = {
   search: string
   selectedTag: string
   tags: ChatTag[]
-  conversationCounts: {
+  conversationCounts?: {
     all: number
     unread: number
     needsReply: number
+    waiting?: number
     snoozed: number
   }
   now: number
@@ -22,6 +23,8 @@ type ConversationListProps = {
   onSelectChat: (index: number) => void
   onSearchChange: (val: string) => void
   onSelectTag: (tagId: string) => void
+  onDeleteConversation?: (index: number) => void
+  onToggleUnread?: (index: number) => void
 }
 
 export default function ConversationList({
@@ -32,29 +35,44 @@ export default function ConversationList({
   search,
   selectedTag,
   tags,
-  conversationCounts,
   now,
   onSelectNav,
   onSelectChat,
   onSearchChange,
   onSelectTag,
+  onDeleteConversation,
+  onToggleUnread,
 }: ConversationListProps) {
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [openTagTooltipId, setOpenTagTooltipId] = useState<string | null>(null)
+
+  // Đóng menu khi click ra ngoài
+  useEffect(() => {
+    function handleClickOutside() {
+      setOpenMenuId(null)
+      setOpenTagTooltipId(null)
+    }
+    window.addEventListener("click", handleClickOutside)
+    return () => window.removeEventListener("click", handleClickOutside)
+  }, [])
+
   function remainingTime(chat: Chat) {
     const seconds = Math.max(0, Math.ceil(((chat.snoozeUntil ?? now) - now) / 1000))
     return Math.floor(seconds / 60) + ":" + String(seconds % 60).padStart(2, "0")
   }
 
-  // 4 Tab chuẩn: Tất cả, Chưa đọc, Cần trả lời, Tạm hoãn (không dùng dot đếm số tin làm khuất text)
+  // 5 Tab chuẩn: Đầy đủ 3 trạng thái cốt lõi của đề tài + Tất cả & Chưa đọc
   const navItems = [
     { id: "all", label: "Tất cả" },
-    { id: "unread", label: "Chưa đọc" },
     { id: "needsReply", label: "Cần trả lời" },
+    { id: "waiting", label: "Chờ khách" },
     { id: "snoozed", label: "Tạm hoãn" },
+    { id: "unread", label: "Chưa đọc" },
   ]
 
   return (
-    <section className="flex min-h-0 flex-col border-r border-slate-200 bg-white">
-      {/* 4 Tab phẳng gọn gàng, không bị khuất chữ */}
+    <section className="flex min-h-0 flex-col border-r border-slate-200 bg-white select-none">
+      {/* Tab bar phẳng, cuộn mượt nếu cần, bao phủ trọn vẹn cả 3 trạng thái của đề tài */}
       <Tabs
         items={navItems}
         value={activeNav}
@@ -75,11 +93,11 @@ export default function ConversationList({
           />
         </div>
 
-        {/* Dropdown Lọc nhãn: Tối giản trực tiếp, không icon thừa hay chữ nhãn */}
+        {/* Dropdown Lọc nhãn: Tối giản full width */}
         <select
           value={selectedTag}
           onChange={(e) => onSelectTag(e.target.value)}
-          className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 type-caption text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-colors"
+          className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 type-caption text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-colors cursor-pointer"
         >
           <option value="all">Tất cả nhãn</option>
           {tags.map((tag) => (
@@ -102,16 +120,16 @@ export default function ConversationList({
             const isActive = activeChat === index
             const isReturned = Boolean(chat.returnedNote)
 
-            // Lấy nhãn chính đầu tiên để không làm giãn chiều cao thẻ chat
+            // Lấy nhãn chính đầu tiên
             const primaryTagId = chat.tags?.[0]
             const primaryTag = primaryTagId ? tags.find((t) => t.id === primaryTagId) : null
+            const extraTagsCount = chat.tags && chat.tags.length > 1 ? chat.tags.length - 1 : 0
 
             return (
-              <button
-                type="button"
+              <div
                 key={chat.id}
                 onClick={() => onSelectChat(index)}
-                className={`group relative flex w-full text-left rounded-lg p-2.5 transition-colors border ${
+                className={`group relative flex w-full cursor-pointer text-left rounded-lg p-2.5 transition-colors border ${
                   isActive
                     ? "bg-slate-100/90 border-slate-200 shadow-2xs"
                     : isReturned
@@ -119,7 +137,7 @@ export default function ConversationList({
                       : "bg-white border-transparent hover:bg-slate-50"
                 }`}
               >
-                {/* Avatar khách kèm badge kênh */}
+                {/* Avatar khách kèm huy hiệu kênh Messenger */}
                 <div className="mr-2.5 shrink-0">
                   <Avatar src={chat.avatar} name={chat.name} size="lg" channel />
                 </div>
@@ -130,23 +148,75 @@ export default function ConversationList({
                     <span className={`truncate type-heading ${isActive ? "text-slate-900" : "text-slate-800"}`}>
                       {chat.name}
                     </span>
-                    <span className="shrink-0 type-caption text-slate-400 text-[11px]">
-                      {isReturned ? (
-                        <span className="text-amber-600 font-semibold">Đến hạn</span>
-                      ) : chat.status === "snoozed" ? (
-                        <span className="text-amber-600 font-medium">{remainingTime(chat)}</span>
-                      ) : (
-                        chat.time
-                      )}
-                    </span>
+
+                    <div className="relative flex items-center gap-1 shrink-0">
+                      <span className="type-caption text-slate-400 text-[11px]">
+                        {isReturned ? (
+                          <span className="text-amber-600 font-semibold">Đến hạn</span>
+                        ) : chat.status === "snoozed" ? (
+                          <span className="text-amber-600 font-medium">{remainingTime(chat)}</span>
+                        ) : (
+                          chat.time
+                        )}
+                      </span>
+
+                      {/* Nút 3 chấm ... hiện khi hover khung chat */}
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setOpenMenuId(openMenuId === chat.id ? null : chat.id)
+                          }}
+                          title="Tùy chọn"
+                          className="flex size-5 items-center justify-center rounded text-slate-400 hover:bg-slate-200 hover:text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <MoreHorizontalIcon className="size-3.5" />
+                        </button>
+
+                        {/* Dropdown menu thao tác trên khung chat */}
+                        {openMenuId === chat.id && (
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="absolute right-0 top-6 z-40 w-44 rounded-xl border border-slate-200 bg-white py-1 shadow-xl type-caption text-slate-700"
+                          >
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onToggleUnread?.(index)
+                                setOpenMenuId(null)
+                              }}
+                              className="flex w-full items-center justify-between px-3 py-1.5 hover:bg-slate-50 transition-colors"
+                            >
+                              <span>{chat.unread ? "Đánh dấu đã đọc" : "Đánh dấu chưa đọc"}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onDeleteConversation?.(index)
+                                setOpenMenuId(null)
+                              }}
+                              className="flex w-full items-center gap-1.5 px-3 py-1.5 text-rose-600 hover:bg-rose-50 transition-colors"
+                            >
+                              <TrashIcon className="size-3.5" />
+                              <span>Xóa cuộc hội thoại</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Dòng tin nhắn xem trước */}
-                  <p className={`mt-0.5 line-clamp-1 type-body text-slate-500 text-[13px] ${chat.unread ? "font-semibold text-slate-900" : ""}`}>
+                  {/* Dòng tin nhắn xem trước: ĐÃ HẾT BOLD KHI ĐÃ ĐỌC */}
+                  <p
+                    className={`mt-0.5 line-clamp-1 type-body text-[13px] ${
+                      chat.unread ? "font-semibold text-slate-900" : "text-slate-500 font-normal"
+                    }`}
+                  >
                     {chat.snippet}
                   </p>
 
-                  {/* Hàng nhãn gọn gàng: Tối đa 1 nhãn chính + Chấm xanh chưa đọc */}
+                  {/* Hàng nhãn: Nhãn chính + Badge +N kèm Tooltip */}
                   <div className="mt-1 flex items-center justify-between">
                     <div className="flex items-center gap-1">
                       {isReturned ? (
@@ -156,15 +226,53 @@ export default function ConversationList({
                       ) : primaryTag ? (
                         <Tag tone={primaryTag.tone}>{primaryTag.label}</Tag>
                       ) : null}
+
+                      {/* Badge +N nếu có nhiều nhãn */}
+                      {extraTagsCount > 0 && (
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setOpenTagTooltipId(openTagTooltipId === chat.id ? null : chat.id)
+                            }}
+                            className="inline-flex h-5 items-center justify-center rounded-md bg-slate-100 px-1.5 type-caption font-semibold text-slate-600 hover:bg-slate-200 transition-colors"
+                            title="Bấm để xem tất cả nhãn"
+                          >
+                            +{extraTagsCount}
+                          </button>
+
+                          {/* Tooltip hiển thị tất cả các nhãn */}
+                          {openTagTooltipId === chat.id && (
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              className="absolute left-0 bottom-full z-40 mb-1.5 flex flex-col gap-1 rounded-lg border border-slate-200 bg-white p-2 shadow-xl min-w-[130px]"
+                            >
+                              <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+                                Nhãn đã gắn ({chat.tags?.length || 0})
+                              </div>
+                              {chat.tags?.map((tagId) => {
+                                const tagObj = tags.find((t) => t.id === tagId)
+                                if (!tagObj) return null
+                                return (
+                                  <Tag key={tagId} tone={tagObj.tone}>
+                                    {tagObj.label}
+                                  </Tag>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Chấm tròn báo tin chưa đọc */}
+                    {/* Chấm tròn báo tin chưa đọc: chỉ xuất hiện khi chưa đọc */}
                     {chat.unread && (
                       <span className="size-2 rounded-full bg-blue-600 shrink-0" title="Tin nhắn mới chưa đọc" />
                     )}
                   </div>
                 </div>
-              </button>
+              </div>
             )
           })
         )}

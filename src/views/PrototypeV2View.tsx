@@ -148,11 +148,12 @@ export default function PrototypeV2View() {
     )
   }
 
-  // Đếm hội thoại theo 4 tab chuẩn hệ thống lớn: Tất cả, Chưa đọc, Cần xử lý, Tạm hoãn
+  // Đếm hội thoại theo 5 tab
   const conversationCounts = {
     all: chats.length,
     unread: chats.filter((c) => Boolean(c.unread)).length,
     needsReply: chats.filter((c) => c.status === "needsReply").length,
+    waiting: chats.filter((c) => c.status === "waiting").length,
     snoozed: chats.filter((c) => c.status === "snoozed").length,
   }
 
@@ -161,6 +162,7 @@ export default function PrototypeV2View() {
       let matchNav = true
       if (activeNav === "unread") matchNav = Boolean(chat.unread)
       else if (activeNav === "needsReply") matchNav = chat.status === "needsReply"
+      else if (activeNav === "waiting") matchNav = chat.status === "waiting"
       else if (activeNav === "snoozed") matchNav = chat.status === "snoozed"
 
       const matchSearch = `${chat.name} ${chat.snippet} ${chat.productTag || ""}`
@@ -177,6 +179,41 @@ export default function PrototypeV2View() {
         (b.updatedAt ?? 0) - (a.updatedAt ?? 0)
       )
     })
+
+  // Chọn hội thoại: tự động đánh dấu đã đọc -> hết bold ở sidebar và tắt chấm xanh
+  function handleSelectChat(index: number) {
+    setActiveChat(index)
+    setChats((prev) =>
+      prev.map((c, i) => (i === index ? { ...c, unread: false } : c))
+    )
+  }
+
+  // Xóa hội thoại
+  function handleDeleteConversation(indexToDelete: number) {
+    setChats((prev) => prev.filter((_, i) => i !== indexToDelete))
+    setHistories((prev) => prev.filter((_, i) => i !== indexToDelete))
+    if (activeChat >= indexToDelete) {
+      setActiveChat((prev) => Math.max(0, prev - 1))
+    }
+  }
+
+  // Chuyển đổi trạng thái Đã đọc / Chưa đọc
+  function handleToggleUnread(index: number) {
+    setChats((prev) =>
+      prev.map((c, i) => (i === index ? { ...c, unread: !c.unread } : c))
+    )
+  }
+
+  // Xóa từng tin nhắn trong hội thoại
+  function handleDeleteMessage(msgIndex: number) {
+    setHistories((prev) => {
+      const next = [...prev]
+      if (next[activeChat]) {
+        next[activeChat] = next[activeChat].filter((_, i) => i !== msgIndex)
+      }
+      return next
+    })
+  }
 
   // Xử lý gửi tin nhắn
   function handleSendMessage(e?: FormEvent) {
@@ -398,9 +435,11 @@ export default function PrototypeV2View() {
           conversationCounts={conversationCounts}
           now={now}
           onSelectNav={setActiveNav}
-          onSelectChat={setActiveChat}
+          onSelectChat={handleSelectChat}
           onSearchChange={setSearch}
           onSelectTag={setSelectedTag}
+          onDeleteConversation={handleDeleteConversation}
+          onToggleUnread={handleToggleUnread}
         />
 
         {/* CỘT 2: Khung Chat tương tác */}
@@ -447,6 +486,7 @@ export default function PrototypeV2View() {
           onTriggerExpireSnooze={handleTriggerExpireSnooze}
           simulateOffline={simulateOffline}
           onToggleSimulateOffline={() => setSimulateOffline((v) => !v)}
+          onDeleteMessage={handleDeleteMessage}
         />
 
         {/* CỘT 3: Tiện ích Bán hàng & Tồn kho */}
