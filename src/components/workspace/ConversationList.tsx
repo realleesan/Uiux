@@ -1,7 +1,7 @@
 import React from "react"
 import { Chat, ChatTag } from "../../types/chat"
-import { ClockIcon, SearchIcon } from "./icons"
-import { Avatar, Chip, Tabs, Tag } from "./ui"
+import { ClockIcon, SearchIcon, TagIcon } from "./icons"
+import { Avatar, Tabs, Tag } from "./ui"
 
 type ConversationListProps = {
   chats: Chat[]
@@ -12,8 +12,9 @@ type ConversationListProps = {
   selectedTag: string
   tags: ChatTag[]
   conversationCounts: {
+    all: number
+    unread: number
     needsReply: number
-    waiting: number
     snoozed: number
   }
   now: number
@@ -43,22 +44,24 @@ export default function ConversationList({
     return Math.floor(seconds / 60) + ":" + String(seconds % 60).padStart(2, "0")
   }
 
+  // 4 Tab chuẩn theo hệ thống lớn (Pancake, Intercom): Tất cả & Chưa đọc là cốt lõi
   const navItems = [
-    { id: "Cần trả lời", label: "Cần trả lời", count: conversationCounts.needsReply, alert: conversationCounts.needsReply > 0 },
-    { id: "Chờ khách", label: "Chờ khách", count: conversationCounts.waiting },
-    { id: "Tạm hoãn", label: "Tạm hoãn", count: conversationCounts.snoozed },
+    { id: "all", label: "Tất cả", count: conversationCounts.all },
+    { id: "unread", label: "Chưa đọc", count: conversationCounts.unread, alert: conversationCounts.unread > 0 },
+    { id: "needsReply", label: "Cần xử lý", count: conversationCounts.needsReply },
+    { id: "snoozed", label: "Tạm hoãn", count: conversationCounts.snoozed },
   ]
 
   return (
     <section className="flex min-h-0 flex-col border-r border-slate-200 bg-white">
-      {/* 3 Tab Nghiệp vụ: Cân đối, chuẩn phẳng */}
+      {/* 4 Tab Nghiệp vụ: Cân đối, chuẩn SaaS */}
       <Tabs
         items={navItems}
         value={activeNav}
         onChange={onSelectNav}
       />
 
-      {/* Tìm kiếm & Lọc thẻ tag */}
+      {/* Tìm kiếm & Dropdown lọc theo nhãn chuẩn hệ thống lớn */}
       <div className="border-b border-slate-200 p-2.5 space-y-2 bg-white">
         <div className="relative flex items-center">
           <span className="pointer-events-none absolute left-3 text-slate-400">
@@ -67,25 +70,29 @@ export default function ConversationList({
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Tìm theo tên khách, sản phẩm..."
+            placeholder="Tìm theo tên khách, nội dung..."
             className="h-8.5 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-8.5 pr-3 type-body text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:bg-white transition-colors"
           />
         </div>
 
-        {/* Thanh lọc Tag Thẻ nghiệp vụ: flex-wrap đảm bảo không bị khuất chữ */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-          <Chip active={selectedTag === "all"} onClick={() => onSelectTag("all")}>
-            Tất cả
-          </Chip>
-          {tags.map((tag) => (
-            <Chip
-              key={tag.id}
-              active={selectedTag === tag.id}
-              onClick={() => onSelectTag(tag.id)}
-            >
-              {tag.label}
-            </Chip>
-          ))}
+        {/* Dropdown Lọc nhãn: Tối giản, không bị rườm rà hay giãn dòng */}
+        <div className="flex items-center justify-between gap-2 px-0.5">
+          <div className="flex items-center gap-1.5 text-slate-500 type-caption">
+            <TagIcon className="size-3.5 text-slate-400" />
+            <span>Nhãn:</span>
+          </div>
+          <select
+            value={selectedTag}
+            onChange={(e) => onSelectTag(e.target.value)}
+            className="h-7 rounded-md border border-slate-200 bg-slate-50 px-2 type-caption text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-colors"
+          >
+            <option value="all">Tất cả nhãn</option>
+            {tags.map((tag) => (
+              <option key={tag.id} value={tag.id}>
+                {tag.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -101,24 +108,23 @@ export default function ConversationList({
             const isActive = activeChat === index
             const isReturned = Boolean(chat.returnedNote)
 
+            // Lấy nhãn chính đầu tiên để không làm giãn chiều cao thẻ chat
+            const primaryTagId = chat.tags?.[0]
+            const primaryTag = primaryTagId ? tags.find((t) => t.id === primaryTagId) : null
+
             return (
               <button
                 type="button"
                 key={chat.id}
                 onClick={() => onSelectChat(index)}
-                className={`group relative flex w-full text-left rounded-xl p-2.5 transition-all border ${
+                className={`group relative flex w-full text-left rounded-lg p-2.5 transition-colors border ${
                   isActive
-                    ? "bg-blue-50/60 border-blue-200 shadow-2xs"
+                    ? "bg-slate-100/90 border-slate-200 shadow-2xs"
                     : isReturned
-                      ? "bg-amber-50/50 border-amber-300 hover:bg-amber-50"
-                      : "bg-white border-transparent hover:bg-slate-50 hover:border-slate-200"
+                      ? "bg-amber-50/40 border-amber-200/60 hover:bg-amber-50/70"
+                      : "bg-white border-transparent hover:bg-slate-50"
                 }`}
               >
-                {/* Viền cam cảnh báo khi hết hạn quay về */}
-                {isReturned && (
-                  <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-amber-500" />
-                )}
-
                 {/* Avatar khách kèm badge kênh */}
                 <div className="mr-2.5 shrink-0">
                   <Avatar src={chat.avatar} name={chat.name} size="lg" channel />
@@ -127,45 +133,40 @@ export default function ConversationList({
                 {/* Nội dung tóm tắt */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-1">
-                    <span className={`truncate type-heading ${isActive ? "text-blue-900" : "text-slate-900"}`}>
+                    <span className={`truncate type-heading ${isActive ? "text-slate-900" : "text-slate-800"}`}>
                       {chat.name}
                     </span>
-                    <span className="shrink-0 type-caption text-slate-400">
-                      {chat.time}
+                    <span className="shrink-0 type-caption text-slate-400 text-[11px]">
+                      {isReturned ? (
+                        <span className="text-amber-600 font-semibold">Đến hạn</span>
+                      ) : chat.status === "snoozed" ? (
+                        <span className="text-amber-600 font-medium">{remainingTime(chat)}</span>
+                      ) : (
+                        chat.time
+                      )}
                     </span>
                   </div>
 
                   {/* Dòng tin nhắn xem trước */}
-                  <p className={`mt-0.5 line-clamp-1 type-body text-slate-500 ${chat.unread ? "font-semibold text-slate-900" : ""}`}>
+                  <p className={`mt-0.5 line-clamp-1 type-body text-slate-500 text-[13px] ${chat.unread ? "font-semibold text-slate-900" : ""}`}>
                     {chat.snippet}
                   </p>
 
-                  {/* Thẻ tag phân loại & Chỉ báo trạng thái */}
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
-                    {isReturned ? (
-                      <Tag tone="amber" icon={<ClockIcon className="size-3" />}>
-                        Đến hạn nhắc lại
-                      </Tag>
-                    ) : chat.status === "snoozed" ? (
-                      <Tag tone="amber">
-                        Còn {remainingTime(chat)}
-                      </Tag>
-                    ) : null}
-
-                    {chat.tags?.map((tId) => {
-                      const tagDef = tags.find((t) => t.id === tId)
-                      if (!tagDef) return null
-                      return (
-                        <Tag key={tId} tone={tagDef.tone}>
-                          {tagDef.label}
+                  {/* Hàng nhãn gọn gàng: Tối đa 1 nhãn chính + Chấm xanh chưa đọc */}
+                  <div className="mt-1 flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      {isReturned ? (
+                        <Tag tone="amber" icon={<ClockIcon className="size-3" />}>
+                          Đến hạn nhắc lại
                         </Tag>
-                      )
-                    })}
+                      ) : primaryTag ? (
+                        <Tag tone={primaryTag.tone}>{primaryTag.label}</Tag>
+                      ) : null}
+                    </div>
 
-                    {chat.productTag && (
-                      <Tag tone="neutral">
-                        {chat.productTag}
-                      </Tag>
+                    {/* Chấm tròn báo tin chưa đọc */}
+                    {chat.unread && (
+                      <span className="size-2 rounded-full bg-blue-600 shrink-0" title="Tin nhắn mới chưa đọc" />
                     )}
                   </div>
                 </div>

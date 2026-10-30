@@ -10,7 +10,7 @@ import { Chat, ChatStatus, HistoryMessage, ProductItem, QuickReply } from "../ty
 export default function PrototypeV2View() {
   const [chats, setChats] = useState<Chat[]>(sampleChats)
   const [histories, setHistories] = useState<HistoryMessage[][]>(sampleHistories)
-  const [activeNav, setActiveNav] = useState("Cần trả lời")
+  const [activeNav, setActiveNav] = useState("all")
   const [activeChat, setActiveChat] = useState(0)
   const [search, setSearch] = useState("")
   const [selectedTag, setSelectedTag] = useState("all")
@@ -125,7 +125,6 @@ export default function PrototypeV2View() {
       ),
     )
     setSnoozeOpen(false)
-    setActiveNav("Cần trả lời")
     const next = visibleChats.find((chat) => chats.indexOf(chat) !== activeChat)
     if (next) setActiveChat(chats.indexOf(next))
   }
@@ -147,33 +146,29 @@ export default function PrototypeV2View() {
           : chat,
       ),
     )
-    setActiveNav("Cần trả lời")
   }
 
-  const activeStatus: ChatStatus =
-    activeNav === "Cần trả lời"
-      ? "needsReply"
-      : activeNav === "Chờ khách"
-        ? "waiting"
-        : "snoozed"
-
-  const conversationCounts = chats.reduce<Record<ChatStatus, number>>(
-    (counts, chat) => ({
-      ...counts,
-      [chat.status]: (counts[chat.status] || 0) + 1,
-    }),
-    { needsReply: 0, waiting: 0, snoozed: 0 },
-  )
+  // Đếm hội thoại theo 4 tab chuẩn hệ thống lớn: Tất cả, Chưa đọc, Cần xử lý, Tạm hoãn
+  const conversationCounts = {
+    all: chats.length,
+    unread: chats.filter((c) => Boolean(c.unread)).length,
+    needsReply: chats.filter((c) => c.status === "needsReply").length,
+    snoozed: chats.filter((c) => c.status === "snoozed").length,
+  }
 
   const visibleChats = chats
     .filter((chat) => {
-      const matchStatus = chat.status === activeStatus
+      let matchNav = true
+      if (activeNav === "unread") matchNav = Boolean(chat.unread)
+      else if (activeNav === "needsReply") matchNav = chat.status === "needsReply"
+      else if (activeNav === "snoozed") matchNav = chat.status === "snoozed"
+
       const matchSearch = `${chat.name} ${chat.snippet} ${chat.productTag || ""}`
         .toLowerCase()
         .includes(search.toLowerCase())
       const matchTag =
         selectedTag === "all" || (chat.tags && chat.tags.includes(selectedTag))
-      return matchStatus && matchSearch && matchTag
+      return matchNav && matchSearch && matchTag
     })
     .sort((a, b) => {
       return (
@@ -249,11 +244,8 @@ export default function PrototypeV2View() {
     setAttachments((prev) => ({ ...prev, [activeChat]: undefined }))
     setMessage("")
 
-    if (wasNeedsReply) {
-      setActiveNav("Cần trả lời")
-      if (nextNeedsReply >= 0) setActiveChat(nextNeedsReply)
-    } else {
-      setActiveNav("Chờ khách")
+    if (activeNav === "needsReply" && nextNeedsReply >= 0) {
+      setActiveChat(nextNeedsReply)
     }
   }
 
