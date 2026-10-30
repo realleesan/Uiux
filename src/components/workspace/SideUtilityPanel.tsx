@@ -1,7 +1,7 @@
 import React from "react"
 import { Chat, ProductItem } from "../../types/chat"
 import { ClockIcon, ReceiptIcon, SearchIcon, UserIcon } from "./icons"
-import { Button, Chip, Field, inputClass, Tabs, Tag } from "./ui"
+import { Button, Chip, CustomSelect, Field, inputClass, Tabs, Tag } from "./ui"
 
 type SideUtilityPanelProps = {
   customer?: Chat
@@ -120,11 +120,8 @@ export default function SideUtilityPanel({
               </div>
 
               {customer.customerHeightWeight ? (
-                <div className="flex items-center justify-between rounded-lg bg-white px-2.5 py-1.5 border border-blue-100/80 type-caption">
-                  <span className="text-slate-600">
-                    <strong className="text-slate-900 font-semibold">Số đo:</strong> {customer.customerHeightWeight}
-                  </span>
-                  <Tag tone="emerald">Gợi ý: Size M</Tag>
+                <div className="rounded-lg bg-white px-2.5 py-1.5 border border-blue-100/80 type-caption text-slate-700">
+                  <strong className="text-slate-900 font-semibold">Số đo:</strong> {customer.customerHeightWeight}
                 </div>
               ) : (
                 <p className="type-caption text-slate-500">Chưa có số đo cụ thể</p>
@@ -141,31 +138,16 @@ export default function SideUtilityPanel({
           )}
 
           {/* Ô tìm kiếm mã sản phẩm */}
-          <div className="space-y-1.5">
-            <div className="relative flex items-center">
-              <span className="pointer-events-none absolute left-3 text-slate-400">
-                <SearchIcon className="size-4" />
-              </span>
-              <input
-                value={productSearch}
-                onChange={(e) => onProductSearchChange(e.target.value)}
-                placeholder="Nhập mã sản phẩm..."
-                className="h-8.5 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-8.5 pr-3 type-body text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:bg-white transition-colors"
-              />
-            </div>
-
-            {/* Gợi ý mã SP */}
-            <div className="flex flex-wrap gap-1.5">
-              {products.map((p) => (
-                <Chip
-                  key={p.code}
-                  active={selectedProduct.code === p.code}
-                  onClick={() => onSelectProduct(p)}
-                >
-                  {p.code}
-                </Chip>
-              ))}
-            </div>
+          <div className="relative flex items-center">
+            <span className="pointer-events-none absolute left-3 text-slate-400">
+              <SearchIcon className="size-4" />
+            </span>
+            <input
+              value={productSearch}
+              onChange={(e) => onProductSearchChange(e.target.value)}
+              placeholder="Nhập mã sản phẩm..."
+              className="h-8.5 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-8.5 pr-3 type-body text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:bg-white transition-colors"
+            />
           </div>
 
           {/* Chi tiết sản phẩm */}
@@ -296,34 +278,31 @@ export default function SideUtilityPanel({
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-2">
-              <Field label="Sản phẩm:">
-                <select
-                  value={orderSelectedProduct}
-                  onChange={(e) => onOrderProductChange(e.target.value)}
-                  className={inputClass}
-                >
-                  {products.map((p) => (
-                    <option key={p.code} value={p.code}>{p.code} - {p.name.slice(0, 14)}...</option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Phân loại:">
-                <select
-                  value={orderSelectedVariant}
-                  onChange={(e) => onOrderVariantChange(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="Trắng · S">Trắng · S</option>
-                  <option value="Trắng · M">Trắng · M</option>
-                  <option value="Trắng · L">Trắng · L</option>
-                  <option value="Đen · M">Đen · M</option>
-                  <option value="Be hoa nhí · M">Be hoa nhí · M</option>
-                </select>
-              </Field>
-            </div>
+            <Field label="Sản phẩm:">
+              <CustomSelect
+                value={orderSelectedProduct}
+                onChange={(val) => onOrderProductChange(String(val))}
+                options={products.map((p) => ({
+                  value: p.code,
+                  label: `[${p.code}] ${p.name}`,
+                }))}
+              />
+            </Field>
 
             <div className="grid grid-cols-2 gap-2">
+              <Field label="Phân loại:">
+                <CustomSelect
+                  value={orderSelectedVariant}
+                  onChange={(val) => onOrderVariantChange(String(val))}
+                  options={[
+                    { value: "Trắng · S", label: "Trắng · S" },
+                    { value: "Trắng · M", label: "Trắng · M" },
+                    { value: "Trắng · L", label: "Trắng · L" },
+                    { value: "Đen · M", label: "Đen · M" },
+                    { value: "Be hoa nhí · M", label: "Be hoa nhí · M" },
+                  ]}
+                />
+              </Field>
               <Field label="Số lượng:">
                 <input
                   type="number"
@@ -333,18 +312,19 @@ export default function SideUtilityPanel({
                   className={inputClass}
                 />
               </Field>
-              <Field label="Phí giao hàng:">
-                <select
-                  value={orderShipping}
-                  onChange={(e) => onOrderShippingChange(Number(e.target.value))}
-                  className={inputClass}
-                >
-                  <option value={25000}>Tiêu chuẩn: 25.000đ</option>
-                  <option value={0}>Miễn phí ship (0đ)</option>
-                  <option value={35000}>Hỏa tốc: 35.000đ</option>
-                </select>
-              </Field>
             </div>
+
+            <Field label="Phí giao hàng:">
+              <CustomSelect
+                value={orderShipping}
+                onChange={(val) => onOrderShippingChange(Number(val))}
+                options={[
+                  { value: 25000, label: "Giao hàng tiêu chuẩn (25.000đ)" },
+                  { value: 0, label: "Miễn phí vận chuyển (0đ)" },
+                  { value: 35000, label: "Giao hàng hỏa tốc (35.000đ)" },
+                ]}
+              />
+            </Field>
 
             {/* Bảng tính tiền */}
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 space-y-1 type-body">

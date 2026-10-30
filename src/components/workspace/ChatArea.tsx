@@ -1,6 +1,6 @@
 import React, { FormEvent, RefObject, useEffect, useRef, useState } from "react"
 import { Chat, ChatTag, HistoryMessage, QuickReply } from "../../types/chat"
-import { CheckCheckIcon, MoreHorizontalIcon, MoreVerticalIcon, PaperclipIcon, TrashIcon } from "./icons"
+import { PaperclipIcon, UserIcon, ZapIcon, MoreVerticalIcon } from "./icons"
 import { Avatar, Button, IconButton, Tag } from "./ui"
 
 type ChatAreaProps = {
@@ -58,11 +58,9 @@ export default function ChatArea({
   onTriggerExpireSnooze,
   simulateOffline,
   onToggleSimulateOffline,
-  onDeleteMessage,
 }: ChatAreaProps) {
   const [moreOpen, setMoreOpen] = useState(false)
   const [showSlashMenu, setShowSlashMenu] = useState(false)
-  const [hoveredMsgIndex, setHoveredMsgIndex] = useState<number | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Tự động giãn chiều cao ô soạn thảo khi tin nhắn dài
@@ -88,11 +86,9 @@ export default function ChatArea({
       )
     : quickReplies
 
-  const staffAvatar = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
-
   return (
     <main className="flex min-h-0 flex-col bg-slate-50/50">
-      {/* Header cuộc trò chuyện: Hiển thị Khách + Trạng thái hoạt động + Tư vấn bởi nhân viên nào */}
+      {/* Header cuộc trò chuyện: Tên khách + Trạng thái + Icon tư vấn viên tinh gọn */}
       <header className="flex h-13 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 select-none">
         <div className="flex items-center gap-3">
           <Avatar src={customer?.avatar} name={customer?.name} size="md" channel />
@@ -101,17 +97,10 @@ export default function ChatArea({
             <p className="type-caption text-slate-500 font-normal">Đang hoạt động</p>
           </div>
 
-          {/* Phân công tư vấn viên phụ trách hội thoại */}
-          <div className="ml-3 flex items-center gap-2 border-l border-slate-200 pl-3">
-            <span className="type-caption text-slate-400">Tư vấn bởi:</span>
-            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 py-0.5 pl-1 pr-2.5">
-              <img
-                src={staffAvatar}
-                alt="Nguyễn Vy"
-                className="size-5 rounded-full object-cover shrink-0"
-              />
-              <span className="type-caption font-medium text-slate-700">Nguyễn Vy</span>
-            </div>
+          {/* Phân công tư vấn viên: Chỉ icon nhân viên gọn gàng */}
+          <div className="ml-3 flex items-center gap-1.5 border-l border-slate-200 pl-3 type-caption text-slate-500">
+            <UserIcon className="size-3.5 text-slate-400" />
+            <span>Nguyễn Vy</span>
           </div>
         </div>
 
@@ -200,8 +189,8 @@ export default function ChatArea({
         </div>
       </header>
 
-      {/* Vùng Tin nhắn Cuộn: TẤT CẢ BONG BÓNG TIN NHẮN ĐỀU CĂN TRÁI THEO CHUẨN CRM */}
-      <div aria-label="Nội dung trao đổi" className="min-h-0 flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      {/* Vùng Tin nhắn Cuộn: KHÁCH BÊN TRÁI, SHOP BÊN PHẢI CHUẨN MESSENGER */}
+      <div aria-label="Nội dung trao đổi" className="min-h-0 flex-1 overflow-y-auto px-6 py-4 space-y-3">
         {/* Banner Nhắc việc khi đến hạn: Nhẹ nhàng, thanh thoát */}
         {customer?.returnedNote && (
           <div className="sticky top-2 z-10 flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50/95 px-3 py-1.5 shadow-xs backdrop-blur-xs">
@@ -220,72 +209,56 @@ export default function ChatArea({
           </div>
         )}
 
-        {/* Danh sách tin nhắn theo dòng thời gian căn toàn bộ bên trái */}
+        {/* Danh sách tin nhắn: Khách bên trái, Shop bên phải */}
         {history.map((entry, index) => {
           const isShop = entry.from === "shop"
           const isLastShop = index === lastShopIndex
 
-          // Thẻ Đơn hàng
+          // Thẻ Đơn hàng (Shop tạo đơn, căn phải)
           if (entry.isOrderCard && entry.orderInfo) {
             const info = entry.orderInfo
             return (
-              <div
-                key={index}
-                className="group flex max-w-[78%] flex-col mr-auto items-start"
-                onMouseEnter={() => setHoveredMsgIndex(index)}
-                onMouseLeave={() => setHoveredMsgIndex(null)}
-              >
-                <div className="flex items-start gap-2.5 w-full">
-                  <Avatar src={staffAvatar} name="Nguyễn Vy" size="sm" />
-                  <div className="flex-1">
-                    <div className="mb-1 flex items-center gap-2 type-caption">
-                      <span className="font-semibold text-blue-700">Nguyễn Vy</span>
-                      <span className="text-[11px] text-slate-400">· Tư vấn viên</span>
-                      <span className="text-[10.5px] text-slate-400">{entry.time}</span>
+              <div key={index} className="flex max-w-[75%] flex-col ml-auto items-end">
+                <div className="relative rounded-2xl border border-emerald-300 bg-gradient-to-b from-emerald-50/80 to-white p-4 shadow-xs text-left w-full">
+                  <div className="flex items-center justify-between border-b border-emerald-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-xs">
+                        ✓
+                      </span>
+                      <div>
+                        <span className="type-heading text-emerald-900 block leading-tight">
+                          ĐÃ TẠO ĐƠN HÀNG THÀNH CÔNG
+                        </span>
+                        <span className="type-caption text-emerald-700 font-mono text-[11px]">
+                          Mã đơn: #{info.orderId}
+                        </span>
+                      </div>
                     </div>
+                    <Tag tone="emerald">Đã đồng bộ POS</Tag>
+                  </div>
 
-                    <div className="relative rounded-2xl border border-emerald-300 bg-gradient-to-b from-emerald-50/80 to-white p-4 shadow-xs">
-                      <div className="flex items-center justify-between border-b border-emerald-100 pb-2.5">
-                        <div className="flex items-center gap-2">
-                          <span className="flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-xs">
-                            ✓
-                          </span>
-                          <div>
-                            <span className="type-heading text-emerald-900 block leading-tight">
-                              ĐÃ TẠO ĐƠN HÀNG THÀNH CÔNG
-                            </span>
-                            <span className="type-caption text-emerald-700 font-mono text-[11px]">
-                              Mã đơn: #{info.orderId}
-                            </span>
-                          </div>
-                        </div>
-                        <Tag tone="emerald">Đã đồng bộ POS</Tag>
-                      </div>
-
-                      <div className="mt-3 space-y-1.5 type-body text-[13px] text-slate-700">
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Sản phẩm:</span>
-                          <span className="font-medium text-slate-900">
-                            {info.productName} ({info.variant})
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Người nhận:</span>
-                          <span className="font-medium text-slate-900">
-                            {info.phone}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Địa chỉ:</span>
-                          <span className="font-medium text-slate-900 truncate max-w-[200px]">
-                            {info.address}
-                          </span>
-                        </div>
-                        <div className="flex justify-between border-t border-slate-100 pt-2 type-heading text-slate-900">
-                          <span>Tổng thu (COD):</span>
-                          <span className="text-emerald-700 text-sm font-bold">{info.total}</span>
-                        </div>
-                      </div>
+                  <div className="mt-3 space-y-1.5 type-body text-[13px] text-slate-700">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Sản phẩm:</span>
+                      <span className="font-medium text-slate-900">
+                        {info.productName} ({info.variant})
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Người nhận:</span>
+                      <span className="font-medium text-slate-900">
+                        {info.phone}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Địa chỉ:</span>
+                      <span className="font-medium text-slate-900 truncate max-w-[200px]">
+                        {info.address}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-t border-slate-100 pt-2 type-heading text-slate-900">
+                      <span>Tổng thu (COD):</span>
+                      <span className="text-emerald-700 text-sm font-bold">{info.total}</span>
                     </div>
                   </div>
                 </div>
@@ -296,82 +269,45 @@ export default function ChatArea({
           return (
             <div
               key={index}
-              className="group flex max-w-[75%] flex-col mr-auto items-start"
-              onMouseEnter={() => setHoveredMsgIndex(index)}
-              onMouseLeave={() => setHoveredMsgIndex(null)}
+              className={`flex max-w-[68%] flex-col ${isShop ? "ml-auto items-end" : "mr-auto items-start"}`}
             >
-              <div className="flex items-start gap-2.5">
-                {/* Avatar người gửi: Shop là Nguyễn Vy, Khách là customer */}
-                {isShop ? (
-                  <Avatar src={staffAvatar} name="Nguyễn Vy" size="sm" />
-                ) : (
+              <div className={`flex items-end gap-2 ${isShop ? "flex-row-reverse" : ""}`}>
+                {/* Chỉ hiển thị avatar khách hàng ở tin nhắn của khách */}
+                {!isShop && (
                   <Avatar src={customer?.avatar} name={customer?.name} size="sm" />
                 )}
 
-                <div className="flex-1 min-w-0">
-                  {/* Nhãn người gửi & Thời gian gửi */}
-                  <div className="mb-1 flex items-center gap-1.5 type-caption">
-                    <span className={`font-semibold ${isShop ? "text-blue-700" : "text-slate-800"}`}>
-                      {isShop ? "Nguyễn Vy" : customer?.name || "Khách hàng"}
-                    </span>
-                    <span className="text-[11px] text-slate-400">
-                      {isShop ? "· Tư vấn viên" : "· Khách hàng"}
-                    </span>
-                    <span className="text-[10.5px] text-slate-400">· {entry.time}</span>
-                  </div>
+                {/* Bong bóng tin nhắn bo 4 góc đều đặn, giờ gửi nằm gọn bên trong */}
+                <div
+                  className={`relative whitespace-pre-wrap break-words rounded-2xl px-3.5 pt-2 pb-1.5 type-body leading-relaxed shadow-2xs ${
+                    isShop
+                      ? "bg-blue-600 text-white"
+                      : "border border-slate-200/80 bg-white text-slate-900"
+                  }`}
+                >
+                  {entry.image && (
+                    <img
+                      src={entry.image}
+                      alt="Ảnh đính kèm"
+                      className="mb-2 max-h-56 rounded-xl object-cover"
+                    />
+                  )}
+                  <p className="pr-1">{entry.text}</p>
 
-                  {/* Bong bóng tin nhắn căn trái, hình chữ nhật bo 4 góc đều đặn */}
-                  <div className="relative inline-flex items-center gap-1.5">
-                    <div
-                      className={`relative whitespace-pre-wrap break-words rounded-2xl px-3.5 pt-2 pb-1.5 type-body leading-relaxed shadow-2xs ${
-                        isShop
-                          ? "bg-blue-600 text-white"
-                          : "border border-slate-200/80 bg-white text-slate-900"
-                      }`}
-                    >
-                      {entry.image && (
-                        <img
-                          src={entry.image}
-                          alt="Ảnh đính kèm"
-                          className="mb-2 max-h-56 rounded-xl object-cover"
-                        />
-                      )}
-                      <p className="pr-1">{entry.text}</p>
-                    </div>
-
-                    {/* Nút thao tác nhanh trên tin nhắn khi hover */}
-                    {hoveredMsgIndex === index && (
-                      <div className="flex items-center gap-0.5 rounded-md border border-slate-200 bg-white p-0.5 shadow-xs">
-                        <button
-                          type="button"
-                          onClick={() => navigator.clipboard.writeText(entry.text || "")}
-                          title="Sao chép tin nhắn"
-                          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                        >
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3">
-                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                          </svg>
-                        </button>
-                        {onDeleteMessage && (
-                          <button
-                            type="button"
-                            onClick={() => onDeleteMessage(index)}
-                            title="Xóa tin nhắn này"
-                            className="rounded p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                          >
-                            <TrashIcon className="size-3" />
-                          </button>
-                        )}
-                      </div>
-                    )}
+                  {/* Giờ gửi nằm gọn ở góc dưới bên trong bong bóng */}
+                  <div
+                    className={`mt-0.5 flex items-center justify-end text-[10.5px] select-none ${
+                      isShop ? "text-blue-100/80" : "text-slate-400"
+                    }`}
+                  >
+                    <span>{entry.time}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Cơ chế ĐÃ XEM chuẩn Messenger */}
+              {/* Cơ chế ĐÃ XEM chuẩn Messenger ở tin nhắn cuối cùng của shop */}
               {isLastShop && (
-                <div className="ml-10 mt-1 flex items-center gap-1 text-[11px] text-slate-400 select-none">
+                <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-400 select-none pr-1">
                   <span>Đã xem</span>
                   {customer?.avatar ? (
                     <img
@@ -393,9 +329,9 @@ export default function ChatArea({
         <div ref={historyEndRef} />
       </div>
 
-      {/* Footer Soạn thảo Tinh gọn: BỎ HẲN NÚT GỬI, ENTER ĐỂ GỬI, TỰ GIÃN CHIỀU CAO KHI DÀI */}
-      <footer className="shrink-0 border-t border-slate-200 bg-white px-4 py-2 relative">
-        {/* Menu gợi ý Slash Command / */}
+      {/* Footer Soạn thảo Tinh gọn: KHÔNG BỊ CỘM, DÙNG TIA SÉT THAY CHO / */}
+      <footer className="shrink-0 border-t border-slate-200 bg-white px-4 py-2.5 relative">
+        {/* Menu gợi ý Slash Command / hoặc bấm nút tia sét */}
         {(showSlashMenu || message.startsWith("/")) && (
           <div className="absolute bottom-full left-4 z-40 mb-2 w-80 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 px-2.5 py-1.5 text-[11px] font-semibold text-slate-400 uppercase">
@@ -464,7 +400,7 @@ export default function ChatArea({
           </div>
         )}
 
-        {/* Ô nhập tin nhắn tinh gọn: Không nút gửi, Enter để gửi, tự động giãn chiều cao */}
+        {/* Ô nhập tin nhắn mượt mà, phẳng phiu, không cộm, Enter để gửi */}
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -473,11 +409,11 @@ export default function ChatArea({
               if (textareaRef.current) textareaRef.current.style.height = "auto"
             }
           }}
-          className="flex w-full items-end rounded-xl border border-slate-300 bg-white px-2 py-1.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-colors"
+          className="flex w-full items-end rounded-xl border border-slate-200 bg-slate-50/80 px-2.5 py-1.5 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all"
         >
           {/* Nút đính kèm ảnh */}
           <label
-            className="flex cursor-pointer items-center justify-center size-7 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors shrink-0 mb-0.5"
+            className="flex cursor-pointer items-center justify-center size-7 rounded-lg text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 transition-colors shrink-0 mb-0.5"
             title="Đính kèm ảnh"
           >
             <PaperclipIcon className="size-4" />
@@ -495,16 +431,16 @@ export default function ChatArea({
             />
           </label>
 
-          {/* Nút mở nhanh tin mẫu / */}
+          {/* Nút mở nhanh tin mẫu bằng icon TIA SÉT ⚡ */}
           <button
             type="button"
             onClick={() => setShowSlashMenu((v) => !v)}
-            title="Mẫu câu nhanh (phím /)"
-            className={`flex items-center justify-center size-7 rounded-lg font-mono text-xs font-bold transition-colors shrink-0 mb-0.5 ml-0.5 ${
-              showSlashMenu ? "bg-blue-100 text-blue-700" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            title="Mẫu câu nhanh"
+            className={`flex items-center justify-center size-7 rounded-lg transition-colors shrink-0 mb-0.5 ml-0.5 ${
+              showSlashMenu ? "bg-amber-100 text-amber-600" : "text-slate-400 hover:bg-slate-200/60 hover:text-amber-500"
             }`}
           >
-            /
+            <ZapIcon className="size-4" />
           </button>
 
           {/* Khung nhập văn bản: Tự động co giãn theo số dòng */}

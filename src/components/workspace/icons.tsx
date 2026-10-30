@@ -166,4 +166,11 @@ export const TrashIcon = (p: IconProps) => (
   </Svg>
 )
 
+export const ZapIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </Svg>
+)
+
+
 

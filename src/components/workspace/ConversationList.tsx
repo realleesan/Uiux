@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { Chat, ChatTag } from "../../types/chat"
 import { ClockIcon, MoreHorizontalIcon, SearchIcon, TrashIcon } from "./icons"
-import { Avatar, Tabs, Tag } from "./ui"
+import { Avatar, CustomSelect, Tabs, Tag } from "./ui"
 
 type ConversationListProps = {
   chats: Chat[]
@@ -61,13 +61,12 @@ export default function ConversationList({
     return Math.floor(seconds / 60) + ":" + String(seconds % 60).padStart(2, "0")
   }
 
-  // 5 Tab chuẩn: Đầy đủ 3 trạng thái cốt lõi của đề tài + Tất cả & Chưa đọc
+  // 4 Tab chuẩn nghiệp vụ: Tất cả + 3 Trạng thái cốt lõi của đề tài
   const navItems = [
     { id: "all", label: "Tất cả" },
     { id: "needsReply", label: "Cần trả lời" },
     { id: "waiting", label: "Chờ khách" },
     { id: "snoozed", label: "Tạm hoãn" },
-    { id: "unread", label: "Chưa đọc" },
   ]
 
   return (
@@ -93,19 +92,15 @@ export default function ConversationList({
           />
         </div>
 
-        {/* Dropdown Lọc nhãn: Tối giản full width */}
-        <select
+        {/* Dropdown Lọc nhãn: Custom Dropdown mượt mà */}
+        <CustomSelect
           value={selectedTag}
-          onChange={(e) => onSelectTag(e.target.value)}
-          className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 type-caption text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-colors cursor-pointer"
-        >
-          <option value="all">Tất cả nhãn</option>
-          {tags.map((tag) => (
-            <option key={tag.id} value={tag.id}>
-              {tag.label}
-            </option>
-          ))}
-        </select>
+          onChange={onSelectTag}
+          options={[
+            { value: "all", label: "Tất cả nhãn" },
+            ...tags.map((tag) => ({ value: tag.id, label: tag.label })),
+          ]}
+        />
       </div>
 
       {/* Danh sách thẻ hội thoại */}
@@ -149,8 +144,9 @@ export default function ConversationList({
                       {chat.name}
                     </span>
 
-                    <div className="relative flex items-center gap-1 shrink-0">
-                      <span className="type-caption text-slate-400 text-[11px]">
+                    <div className="relative shrink-0 flex items-center justify-end">
+                      {/* Hiển thị giờ bình thường, tự ẩn đi khi hover */}
+                      <span className={`type-caption text-slate-400 text-[11px] select-none ${openMenuId === chat.id ? "hidden" : "group-hover:hidden"}`}>
                         {isReturned ? (
                           <span className="text-amber-600 font-semibold">Đến hạn</span>
                         ) : chat.status === "snoozed" ? (
@@ -160,8 +156,8 @@ export default function ConversationList({
                         )}
                       </span>
 
-                      {/* Nút 3 chấm ... hiện khi hover khung chat */}
-                      <div className="relative">
+                      {/* Nút 3 chấm thay thế đúng vị trí của giờ khi hover */}
+                      <div className={`relative ${openMenuId === chat.id ? "flex" : "hidden group-hover:flex"}`}>
                         <button
                           type="button"
                           onClick={(e) => {
@@ -169,7 +165,7 @@ export default function ConversationList({
                             setOpenMenuId(openMenuId === chat.id ? null : chat.id)
                           }}
                           title="Tùy chọn"
-                          className="flex size-5 items-center justify-center rounded text-slate-400 hover:bg-slate-200 hover:text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="flex size-5 items-center justify-center rounded hover:bg-slate-200/80 text-slate-500 hover:text-slate-800 transition-colors"
                         >
                           <MoreHorizontalIcon className="size-3.5" />
                         </button>

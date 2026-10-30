@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, ReactNode } from "react"
+import { ButtonHTMLAttributes, ReactNode, useEffect, useRef, useState } from "react"
 import { Tone } from "../../types/chat"
 
 /* =========================================================================
@@ -128,7 +128,7 @@ export function Tabs<T extends string>({
   onChange: (id: T) => void
 }) {
   return (
-    <div role="tablist" className="flex h-10 shrink-0 border-b border-slate-200 px-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+    <div role="tablist" className="flex h-10 shrink-0 border-b border-slate-200 px-1">
       {items.map((item) => {
         const active = item.id === value
         return (
@@ -138,7 +138,7 @@ export function Tabs<T extends string>({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(item.id)}
-            className={`-mb-px flex shrink-0 flex-1 items-center justify-center gap-1 whitespace-nowrap border-b-2 px-2 text-[12.5px] font-medium transition-colors ${
+            className={`-mb-px flex flex-1 items-center justify-center gap-1 whitespace-nowrap border-b-2 px-1 text-[13px] font-medium transition-colors ${
               active
                 ? "border-blue-600 text-slate-900 font-semibold"
                 : "border-transparent text-slate-500 hover:text-slate-800"
@@ -177,17 +177,94 @@ export function Field({ label, children }: { label: string; children: ReactNode 
   )
 }
 
-export const MessengerIcon = ({ className = "size-3.5" }: { className?: string }) => (
+export function CustomSelect<T extends string | number>({
+  value,
+  options,
+  onChange,
+  placeholder,
+  className = "",
+}: {
+  value: T
+  options: { value: T; label: string }[]
+  onChange: (val: T) => void
+  placeholder?: string
+  className?: string
+}) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const selectedOption = options.find((o) => o.value === value)
+
+  return (
+    <div ref={containerRef} className={`relative ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex h-9 w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 type-body text-slate-900 outline-none transition-colors hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 cursor-pointer"
+      >
+        <span className="truncate text-left">{selectedOption?.label || placeholder || "Chọn..."}</span>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`size-4 text-slate-400 shrink-0 ml-1.5 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-xl">
+          {options.map((opt) => {
+            const isSelected = opt.value === value
+            return (
+              <button
+                key={String(opt.value)}
+                type="button"
+                onClick={() => {
+                  onChange(opt.value)
+                  setOpen(false)
+                }}
+                className={`flex w-full items-center justify-between px-3 py-2 text-left type-body transition-colors cursor-pointer ${
+                  isSelected ? "bg-blue-50 font-medium text-blue-700" : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                <span className="truncate">{opt.label}</span>
+                {isSelected && <span className="type-caption text-blue-600 font-bold ml-2 shrink-0">✓</span>}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export const MessengerIcon = ({ className = "size-full" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
     <circle cx="12" cy="12" r="12" fill="#0084FF" />
     <path
       fill="#FFFFFF"
-      d="M6.5 13.8 11.2 8.8l2.6 2.7 4.2-2.3-4.7 5-2.6-2.7z"
+      d="M5.5 13.5 11 8l3 3 4.5-2.5-5.5 5.5-3-3z"
     />
   </svg>
 )
 
 const avatarSize = { sm: "size-7", md: "size-9", lg: "size-10" }
+const badgeSize = { sm: "size-3.5 -bottom-0.5 -right-0.5", md: "size-4.5 -bottom-1 -right-1", lg: "size-5 -bottom-1 -right-1" }
 
 export function Avatar({
   src,
@@ -206,7 +283,7 @@ export function Avatar({
       {channel && (
         <span
           title="Facebook Messenger"
-          className="absolute -bottom-0.5 -right-0.5 block size-4 shrink-0 rounded-full ring-2 ring-white shadow-2xs overflow-hidden"
+          className={`absolute ${badgeSize[size]} block shrink-0 rounded-full ring-2 ring-white shadow-xs overflow-hidden z-1`}
         >
           <MessengerIcon className="size-full block" />
         </span>
