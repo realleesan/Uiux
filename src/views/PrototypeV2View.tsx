@@ -28,7 +28,7 @@ export default function PrototypeV2View() {
 
   // Cột 3 Tiện ích
   const [showRightPanel, setShowRightPanel] = useState(true)
-  const [utilityTab, setUtilityTab] = useState<"inventory" | "pos" | "snooze">("inventory")
+  const [utilityTab, setUtilityTab] = useState<"inventory" | "pos">("inventory")
 
   // Kho hàng & Sản phẩm
   const [productSearch, setProductSearch] = useState("")
@@ -522,12 +522,6 @@ export default function PrototypeV2View() {
             onOrderShippingChange={setOrderShipping}
             onAutoFillPOS={handleAutoFillPOS}
             onConfirmOrder={handleConfirmOrder}
-            snoozeDelay={snoozeDelay}
-            snoozeNote={snoozeNote}
-            onSnoozeDelayChange={setSnoozeDelay}
-            onSnoozeNoteChange={setSnoozeNote}
-            onConfirmSnooze={() => handleConfirmSnooze()}
-            onTriggerExpireSnooze={handleTriggerExpireSnooze}
           />
         )}
       </div>

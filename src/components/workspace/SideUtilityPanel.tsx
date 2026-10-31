@@ -1,12 +1,12 @@
 import React from "react"
 import { Chat, ProductItem } from "../../types/chat"
-import { ClockIcon, ReceiptIcon, SearchIcon, UserIcon } from "./icons"
+import { ReceiptIcon, SearchIcon, UserIcon } from "./icons"
 import { Button, Chip, CustomSelect, Field, inputClass, Tabs, Tag } from "./ui"
 
 type SideUtilityPanelProps = {
   customer?: Chat
-  utilityTab: "inventory" | "pos" | "snooze"
-  onSelectTab: (tab: "inventory" | "pos" | "snooze") => void
+  utilityTab: "inventory" | "pos"
+  onSelectTab: (tab: "inventory" | "pos") => void
   products: ProductItem[]
   productSearch: string
   selectedProduct: ProductItem
@@ -31,12 +31,6 @@ type SideUtilityPanelProps = {
   onOrderShippingChange: (val: number) => void
   onAutoFillPOS: () => void
   onConfirmOrder: () => void
-  snoozeDelay: string
-  snoozeNote: string
-  onSnoozeDelayChange: (val: string) => void
-  onSnoozeNoteChange: (val: string) => void
-  onConfirmSnooze: () => void
-  onTriggerExpireSnooze: () => void
 }
 
 export default function SideUtilityPanel({
@@ -67,17 +61,10 @@ export default function SideUtilityPanel({
   onOrderShippingChange,
   onAutoFillPOS,
   onConfirmOrder,
-  snoozeDelay,
-  snoozeNote,
-  onSnoozeDelayChange,
-  onSnoozeNoteChange,
-  onConfirmSnooze,
-  onTriggerExpireSnooze,
 }: SideUtilityPanelProps) {
   const tabs = [
     { id: "inventory" as const, label: "Tồn kho" },
     { id: "pos" as const, label: "Tạo đơn hàng" },
-    { id: "snooze" as const, label: "Nhắc việc" },
   ]
 
   const matchedProduct = products.find((p) => p.code === orderSelectedProduct) || products[0]
@@ -356,67 +343,6 @@ export default function SideUtilityPanel({
             >
               Tạo đơn hàng
             </Button>
-          </div>
-        </div>
-      )}
-
-      {/* ===================== TAB 3: HẸN GIỜ NHẮC VIỆC ===================== */}
-      {utilityTab === "snooze" && (
-        <div className="min-h-0 flex-1 overflow-y-auto p-4 space-y-3.5 type-body">
-          <div>
-            <h4 className="type-heading text-slate-900">Hẹn giờ nhắc việc</h4>
-            <p className="mt-0.5 type-caption text-slate-500">
-              Tạm gác hội thoại khi cần kiểm tra kho. Hệ thống sẽ tự động nhắc lại khi đến hạn.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <div>
-              <span className="type-caption text-slate-500 block mb-1.5">Thời gian hẹn giờ:</span>
-              <div className="grid grid-cols-2 gap-2">
-                {["3 phút", "5 phút", "10 phút", "15 phút"].map((m) => (
-                  <Chip
-                    key={m}
-                    active={snoozeDelay === m}
-                    onClick={() => onSnoozeDelayChange(m)}
-                  >
-                    {m}
-                  </Chip>
-                ))}
-              </div>
-            </div>
-
-            <Field label="Ghi chú nhắc việc:">
-              <input
-                value={snoozeNote}
-                onChange={(e) => onSnoozeNoteChange(e.target.value)}
-                placeholder="Ghi chú nhắc việc..."
-                className={inputClass}
-              />
-            </Field>
-
-            <Button
-              variant="warning"
-              size="md"
-              block
-              onClick={onConfirmSnooze}
-            >
-              Bắt đầu hẹn ({snoozeDelay})
-            </Button>
-
-            <div className="border-t border-slate-200 pt-3">
-              <span className="type-caption text-slate-400 block mb-1.5">
-                Kiểm thử nhanh:
-              </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                block
-                onClick={onTriggerExpireSnooze}
-              >
-                Giả lập: Hết hạn hẹn giờ ngay
-              </Button>
-            </div>
           </div>
         </div>
       )}
